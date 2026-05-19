@@ -1,0 +1,108 @@
+{
+  "feature": "Status Personalizados Reembolso",
+  "description": "Seletores para página de gestão de status personalizados de reembolso",
+  "page_path": "/assistencia/status_reembolso/",
+  "base_url": "http://veniti:8280",
+  "selectors": {
+    "page_container": {
+      "selector": "main, [role=\"main\"]",
+      "type": "container",
+      "description": "Container principal da página"
+    },
+    "page_title": {
+      "selector": ".c-navbar__title",
+      "type": "heading",
+      "description": "Título da página no navbar",
+      "text_contains": "Status Reembolso"
+    },
+    "main_table": {
+      "id": "datatable_refunds_custom_status",
+      "selector": "#datatable_refunds_custom_status",
+      "type": "table",
+      "description": "Tabela principal com lista de status de reembolso",
+      "attributes": {
+        "class": "c-table datatable2 dataTable no-footer"
+      }
+    },
+    "table_headers": {
+      "selector": "#datatable_refunds_custom_status thead th",
+      "type": "multiple",
+      "description": "Cabeçalhos da tabela",
+      "columns": [
+        {
+          "index": 0,
+          "text": "Nome",
+          "selector": "#datatable_refunds_custom_status thead th:nth-child(1)"
+        },
+        {
+          "index": 1,
+          "text": "Status",
+          "selector": "#datatable_refunds_custom_status thead th:nth-child(2)"
+        }
+      ]
+    },
+    "table_rows": {
+      "selector": "#datatable_refunds_custom_status tbody tr",
+      "type": "multiple",
+      "description": "Linhas de dados da tabela"
+    },
+    "table_first_row": {
+      "selector": "#datatable_refunds_custom_status tbody tr:first-child",
+      "type": "row",
+      "description": "Primeira linha da tabela"
+    },
+    "export_buttons": {
+      "xls": {
+        "selector": "button:has-text(\".XLS\")",
+        "type": "button",
+        "class": "dt-button buttons-excel buttons-html5",
+        "description": "Botão para exportar em XLS"
+      },
+      "csv": {
+        "selector": "button:has-text(\".CSV\")",
+        "type": "button",
+        "class": "dt-button buttons-csv buttons-html5",
+        "description": "Botão para exportar em CSV"
+      },
+      "pdf": {
+        "selector": "button:has-text(\".PDF\")",
+        "type": "button",
+        "class": "dt-button buttons-pdf buttons-html5",
+        "description": "Botão para exportar em PDF"
+      },
+      "print": {
+        "selector": "button:has-text(\"Imprimir\")",
+        "type": "button",
+        "class": "dt-button buttons-print",
+        "description": "Botão para imprimir"
+      },
+      "columns": {
+        "selector": "button:has-text(\"Altere as colunas\")",
+        "type": "button",
+        "class": "dt-button buttons-collection buttons-colvis",
+        "description": "Botão para alterar colunas visíveis"
+      }
+    }
+  },
+  "validation_rules": {
+    "login_required": true,
+    "min_rows": 0,
+    "expected_columns": 2
+  },
+  "test_data": {
+    "table_rows": 10,
+    "sample_row": {
+      "nome": "ATUALIZADO",
+      "status": "INATIVO"
+    }
+  },
+  "notes": [
+    "Página carregada após login bem-sucedido",
+    "Tabela usa DataTables v2 library",
+    "2 colunas: Nome e Status",
+    "Botões de exportação são dinâmicos (DataTables)",
+    "Sem elementos data-testid disponíveis - usar IDs"
+  ],
+  "generated": "2026-03-31",
+  "validated": true
+}

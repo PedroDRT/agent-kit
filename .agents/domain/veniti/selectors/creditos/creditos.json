@@ -1,0 +1,505 @@
+{
+  "feature": "creditos",
+  "exploredAt": "2026-04-13T15:14:00Z",
+  "screens": {
+    "assistencia-creditos-lista": {
+      "url": "/assistencia/creditos/",
+      "selectors": {
+        "filtro-periodo-de": {
+          "selector": "#caucao_data_de",
+          "type": "input",
+          "description": "Campo de data inicial do filtro de período",
+          "source": "auto"
+        },
+        "filtro-periodo-ate": {
+          "selector": "#caucao_data_ate",
+          "type": "input",
+          "description": "Campo de data final do filtro de período",
+          "source": "auto"
+        },
+        "filtro-cliente": {
+          "selector": "#caucao_clientes",
+          "type": "select",
+          "description": "Select de cliente para filtrar contratos",
+          "source": "auto"
+        },
+        "filtro-utilizacao": {
+          "selector": "#caucao_utilizacao",
+          "type": "select",
+          "description": "Select de utilização: TODOS / MENOR QUE 80% / MAIOR OU IGUAL A 80% E MENOR QUE 100% / MAIOR OU IGUAL A 100%",
+          "source": "auto"
+        },
+        "btn-limpar-filtro": {
+          "selector": "#btn_caucao_limpar_filtro",
+          "type": "button",
+          "description": "Botão para limpar filtros aplicados",
+          "source": "auto"
+        },
+        "btn-filtrar": {
+          "selector": "#btn_caucao_filtrar",
+          "type": "button",
+          "description": "Botão para aplicar filtros",
+          "source": "auto"
+        },
+        "tabela-contratos": {
+          "selector": "#datatable_caucao",
+          "type": "table",
+          "description": "DataTable com contratos (Cliente, N. Contrato, Data Último Crédito, Créditos Restantes R$, Utilização %)",
+          "source": "auto"
+        },
+        "btn-exportar-xls": {
+          "selector": "button:has-text('.XLS')",
+          "type": "button",
+          "description": "Botão de exportação para Excel",
+          "source": "auto"
+        },
+        "btn-exportar-csv": {
+          "selector": "button:has-text('.CSV')",
+          "type": "button",
+          "description": "Botão de exportação para CSV",
+          "source": "auto"
+        }
+      },
+      "uiPatterns": [
+        "Tabela DataTables com paginação — filtro ativado via botão 'Filtrar' (não ao digitar)",
+        "Botão Filtrar inicia disabled, ativado pelo DataTables após carregamento",
+        "Click em linha da tabela abre modal de detalhe do contrato (#editar_creditos)",
+        "Filtro de Utilização: MENOR QUE 80% / MAIOR OU IGUAL A 80% E MENOR QUE 100% / MAIOR OU IGUAL A 100%",
+        "Colunas exportadas refletem filtros ativos no momento da exportação"
+      ],
+      "antiPatterns": [
+        "Não usar seletores de texto de célula para clicar na linha — usar #datatable_caucao tbody tr"
+      ]
+    },
+    "assistencia-creditos-modal-detalhe": {
+      "url": "/assistencia/creditos/",
+      "selectors": {
+        "modal-creditos": {
+          "selector": "#editar_creditos",
+          "type": "modal",
+          "description": "Modal de detalhe de créditos por contrato",
+          "source": "auto"
+        },
+        "btn-mes-anterior": {
+          "selector": "#bt_mes_anterior",
+          "type": "button",
+          "description": "Navegar para mês anterior",
+          "source": "auto"
+        },
+        "btn-proximo-mes": {
+          "selector": "#bt_proximo_mes",
+          "type": "button",
+          "description": "Navegar para próximo mês",
+          "source": "auto"
+        },
+        "mes-ano": {
+          "selector": "#mes-ano-financeiro",
+          "type": "text",
+          "description": "Texto do mês/ano exibido na navegação (ex: ABRIL 2026)",
+          "source": "auto"
+        },
+        "metrica-balanco": {
+          "selector": "#valor_credito_total",
+          "type": "text",
+          "description": "BALANÇO: (créditos + saldo anterior) - débitos",
+          "source": "auto"
+        },
+        "metrica-creditado": {
+          "selector": "#valor_credito_mensal",
+          "type": "text",
+          "description": "CREDITADO: total de créditos do mês",
+          "source": "auto"
+        },
+        "metrica-debitado": {
+          "selector": "#valor_debito_mensal",
+          "type": "text",
+          "description": "DEBITADO: total de débitos do mês",
+          "source": "auto"
+        },
+        "metrica-atendimentos": {
+          "selector": "#valor_atendimentos_metrica",
+          "type": "text",
+          "description": "Valor total dos atendimentos do mês",
+          "source": "auto"
+        },
+        "metrica-credito-contrato": {
+          "selector": "#valor_credito_cadastrado",
+          "type": "text",
+          "description": "CRÉDITO NO CONTRATO: valor configurado no plano (valor_credito)",
+          "source": "auto"
+        },
+        "metrica-para-reposicao": {
+          "selector": "#valor_reposicao_cadastrado",
+          "type": "text",
+          "description": "VALOR PARA REPOSIÇÃO: crédito no contrato - total utilizado",
+          "source": "auto"
+        },
+        "metrica-valor-fixo": {
+          "selector": "#valor_fixo_metrica",
+          "type": "text",
+          "description": "VALOR FIXO configurado no contrato",
+          "source": "auto"
+        },
+        "metrica-diferenca-valor-fixo": {
+          "selector": "#valor_fixo_diferenca",
+          "type": "text",
+          "description": "DIFERENÇA DO VALOR FIXO: valor dos atendimentos - valor fixo",
+          "source": "auto"
+        },
+        "barra-progresso": {
+          "selector": "#valor_barra_progresso",
+          "type": "progressbar",
+          "description": "Barra de utilização percentual do crédito",
+          "source": "auto"
+        },
+        "btn-cadastrar-credito": {
+          "selector": "button:has-text('Cadastrar Crédito')",
+          "type": "button",
+          "description": "Abre modal para adicionar crédito manual",
+          "source": "auto"
+        },
+        "btn-cadastrar-debito": {
+          "selector": "button:has-text('Cadastrar Débito')",
+          "type": "button",
+          "description": "Abre modal para adicionar débito manual",
+          "source": "auto"
+        },
+        "btn-incluir-atendimento": {
+          "selector": "button:has-text('Incluir Atendimento')",
+          "type": "button",
+          "description": "Abre modal para vincular atendimento ao contrato",
+          "source": "auto"
+        },
+        "tabela-itens-credito": {
+          "selector": "#datatable_contrato_creditos",
+          "type": "table",
+          "description": "DataTable com itens de crédito/débito (checkbox, Data, Prestador, Protocolo, Placa, KM, Situação Fechamento, Valor, Tipo)",
+          "source": "auto"
+        },
+        "checkbox-selecionar-todos": {
+          "selector": "#check_credit",
+          "type": "checkbox",
+          "description": "Selecionar/desselecionar todos os itens da tabela",
+          "source": "auto"
+        }
+      },
+      "uiPatterns": [
+        "Modal full-screen com navegação mensal por botões < >",
+        "Linha da tabela clicável: abre modal de edição (crédito ou débito manual) ou histórico (automático)",
+        "Badge 'FECHADO' (verde) / 'EM ABERTO' (cinza) na coluna Situação Fechamento",
+        "Badge 'CRÉDITO' (verde) / 'DÉBITO' (amarelo) na coluna Tipo",
+        "Barra de progresso muda de cor conforme utilização (verde/amarelo/vermelho)",
+        "Protocolo de atendimento exibido como link para /assistencia/operacao/atendimentos_editar.php?id=X"
+      ],
+      "antiPatterns": []
+    },
+    "assistencia-creditos-modal-cadastrar-credito": {
+      "url": "/assistencia/creditos/",
+      "selectors": {
+        "modal-adicionar-credito": {
+          "selector": "#modal_adicionar_credito",
+          "type": "modal",
+          "description": "Modal para adicionar crédito manual",
+          "source": "auto"
+        },
+        "input-data-credito": {
+          "selector": "#cadastrar_data_credito",
+          "type": "input",
+          "description": "Campo de data do crédito (formato dd/mm/yyyy)",
+          "source": "auto"
+        },
+        "input-valor-credito": {
+          "selector": "#cadastrar_valor_credito",
+          "type": "input",
+          "description": "Campo de valor do crédito (máscara moeda BR)",
+          "source": "auto"
+        },
+        "input-descricao-credito": {
+          "selector": "#cadastrar_descricao_credito",
+          "type": "input",
+          "description": "Campo de descrição/observação do crédito",
+          "source": "auto"
+        },
+        "btn-salvar-credito": {
+          "selector": "#bt_cadastrar_credito",
+          "type": "button",
+          "description": "Botão Salvar para confirmar criação do crédito",
+          "source": "auto"
+        }
+      },
+      "uiPatterns": [
+        "Máscara de data: datepicker padrão do sistema",
+        "Máscara de valor: formato monetário brasileiro (1.000,00)"
+      ],
+      "antiPatterns": []
+    },
+    "assistencia-creditos-modal-cadastrar-debito": {
+      "url": "/assistencia/creditos/",
+      "selectors": {
+        "modal-adicionar-debito": {
+          "selector": "#modal_adicionar_debito",
+          "type": "modal",
+          "description": "Modal para adicionar débito manual",
+          "source": "auto"
+        },
+        "input-data-debito": {
+          "selector": "#cadastrar_data_debito",
+          "type": "input",
+          "description": "Campo de data do débito (formato dd/mm/yyyy)",
+          "source": "auto"
+        },
+        "input-valor-debito": {
+          "selector": "#cadastrar_valor_debito",
+          "type": "input",
+          "description": "Campo de valor do débito (máscara moeda BR)",
+          "source": "auto"
+        },
+        "input-descricao-debito": {
+          "selector": "#cadastrar_descricao_debito",
+          "type": "input",
+          "description": "Campo de descrição/observação do débito",
+          "source": "auto"
+        },
+        "btn-salvar-debito": {
+          "selector": "#bt_cadastrar_debito",
+          "type": "button",
+          "description": "Botão Salvar para confirmar criação do débito",
+          "source": "auto"
+        }
+      },
+      "uiPatterns": [],
+      "antiPatterns": []
+    },
+    "assistencia-creditos-modal-editar-credito": {
+      "url": "/assistencia/creditos/",
+      "selectors": {
+        "modal-editar-credito": {
+          "selector": "#modal_editar_credito",
+          "type": "modal",
+          "description": "Modal para editar crédito manual existente",
+          "source": "auto"
+        },
+        "input-id-credito": {
+          "selector": "#edit_id_credito",
+          "type": "input",
+          "description": "Campo hidden com ID do crédito em edição",
+          "source": "auto"
+        },
+        "input-data-editar-credito": {
+          "selector": "#edit_date_credito",
+          "type": "input",
+          "description": "Campo de data do crédito para edição",
+          "source": "auto"
+        },
+        "input-valor-editar-credito": {
+          "selector": "#edit_valor_credito",
+          "type": "input",
+          "description": "Campo de valor do crédito para edição",
+          "source": "auto"
+        },
+        "input-descricao-editar-credito": {
+          "selector": "#edit_descricao_credito",
+          "type": "input",
+          "description": "Campo de descrição do crédito para edição",
+          "source": "auto"
+        },
+        "btn-excluir-credito": {
+          "selector": "#bt_excluir_credito",
+          "type": "button",
+          "description": "Botão Excluir o crédito (soft-delete)",
+          "source": "auto"
+        },
+        "btn-salvar-editar-credito": {
+          "selector": "#bt_edit_credito",
+          "type": "button",
+          "description": "Botão Salvar as edições do crédito",
+          "source": "auto"
+        }
+      },
+      "uiPatterns": [
+        "Modal abre ao clicar em linha da tabela de tipo CREDITO (manual)",
+        "Apenas créditos sem id_atendimento são editáveis"
+      ],
+      "antiPatterns": []
+    },
+    "assistencia-creditos-modal-historico": {
+      "url": "/assistencia/creditos/",
+      "selectors": {
+        "modal-historico": {
+          "selector": "#modal_historico_creditos",
+          "type": "modal",
+          "description": "Modal com histórico de alterações de créditos do atendimento",
+          "source": "auto"
+        },
+        "tabela-logs": {
+          "selector": "#datatable_logs_credits",
+          "type": "table",
+          "description": "DataTable com histórico (Descrição, Tipo, Protocolo)",
+          "source": "auto"
+        },
+        "btn-filtrar-historico": {
+          "selector": "#search_creditos_contrato_historico",
+          "type": "button",
+          "description": "Botão para aplicar filtro de tipo no histórico",
+          "source": "auto"
+        },
+        "select-tipo-historico": {
+          "selector": "#search_creditos_contrato_tipo_historico",
+          "type": "select",
+          "description": "Filtro de tipo no histórico: TODOS / CREDITO / DEBITO",
+          "source": "auto"
+        }
+      },
+      "uiPatterns": [
+        "Histórico acessível via ação na linha de atendimento automático"
+      ],
+      "antiPatterns": []
+    },
+    "cliente-creditos-lista-contratos": {
+      "url": "/cliente/creditos/",
+      "selectors": {
+        "tabela-contratos": {
+          "selector": "#datatable_contratos",
+          "type": "table",
+          "description": "DataTable com contratos do cliente (Código, Filial, Data último crédito, Balanço R$, Valor fixo R$, Utilização, Status)",
+          "source": "auto"
+        },
+        "filtro-data-de": {
+          "selector": "#filtrar_creditos_contrato_data_de",
+          "type": "input",
+          "description": "Filtro data inicial no painel de busca (aba Procurar)",
+          "source": "auto"
+        },
+        "filtro-data-ate": {
+          "selector": "#filtrar_creditos_contrato_data_ate",
+          "type": "input",
+          "description": "Filtro data final no painel de busca (aba Procurar)",
+          "source": "auto"
+        },
+        "btn-filtrar": {
+          "selector": "#filtrar_creditos_contrato",
+          "type": "button",
+          "description": "Botão para aplicar filtro de data na listagem de contratos",
+          "source": "auto"
+        }
+      },
+      "uiPatterns": [
+        "Tela READ-ONLY — sem botões de criação/edição",
+        "Aba 'Visualizar' (padrão) e aba 'Procurar' com filtro de data",
+        "Click numa linha navega para /cliente/creditos/contrato.php",
+        "Coluna Utilização exibe barra de progresso visual",
+        "Acesso controlado por permissão AUTH_CLIENTE_USER_VISUALIZAR_CREDITOS"
+      ],
+      "antiPatterns": []
+    },
+    "cliente-creditos-detalhe-contrato": {
+      "url": "/cliente/creditos/contrato.php",
+      "selectors": {
+        "btn-mes-anterior": {
+          "selector": "#bt_mes_anterior",
+          "type": "button",
+          "description": "Navegar para mês anterior",
+          "source": "auto"
+        },
+        "btn-proximo-mes": {
+          "selector": "#bt_proximo_mes",
+          "type": "button",
+          "description": "Navegar para próximo mês",
+          "source": "auto"
+        },
+        "mes-ano": {
+          "selector": "#mes-ano-financeiro",
+          "type": "text",
+          "description": "Texto do mês/ano na navegação",
+          "source": "auto"
+        },
+        "metrica-balanco": {
+          "selector": "#valor_credito_total",
+          "type": "text",
+          "description": "BALANÇO: saldo acumulado do contrato",
+          "source": "auto"
+        },
+        "metrica-creditado": {
+          "selector": "#valor_credito_mensal",
+          "type": "text",
+          "description": "CREDITADO no mês",
+          "source": "auto"
+        },
+        "metrica-debitado": {
+          "selector": "#valor_debito_mensal",
+          "type": "text",
+          "description": "DEBITADO no mês",
+          "source": "auto"
+        },
+        "metrica-no-contrato": {
+          "selector": "#valor_credito_cadastrado",
+          "type": "text",
+          "description": "NO CONTRATO: crédito configurado no plano",
+          "source": "auto"
+        },
+        "metrica-para-reposicao": {
+          "selector": "#valor_reposicao_cadastrado",
+          "type": "text",
+          "description": "PARA REPOSIÇÃO: crédito no contrato - total utilizado",
+          "source": "auto"
+        },
+        "metrica-valor-fixo": {
+          "selector": "#valor_fixo_metrica",
+          "type": "text",
+          "description": "VALOR FIXO do contrato",
+          "source": "auto"
+        },
+        "barra-progresso": {
+          "selector": "#barra_progresso",
+          "type": "progressbar",
+          "description": "Barra visual de utilização do crédito",
+          "source": "auto"
+        },
+        "tabela-creditos": {
+          "selector": "#datatable_creditos",
+          "type": "table",
+          "description": "DataTable com lançamentos do mês (Data, Protocolo, Placa, KM, Situação Fechamento, Valor, Tipo)",
+          "source": "auto"
+        },
+        "btn-modal-busca": {
+          "selector": "[data-toggle='modal'][data-target='#modal_filtrar_credito']",
+          "type": "button",
+          "description": "Abre modal de filtro por data nos créditos do contrato",
+          "source": "auto"
+        },
+        "modal-filtro": {
+          "selector": "#modal_filtrar_credito",
+          "type": "modal",
+          "description": "Modal de filtro de período para créditos do contrato",
+          "source": "auto"
+        },
+        "filtro-modal-data-de": {
+          "selector": "#search_creditos_contrato_data_de",
+          "type": "input",
+          "description": "Data inicial no modal de filtro",
+          "source": "auto"
+        },
+        "filtro-modal-data-ate": {
+          "selector": "#search_creditos_contrato_data_ate",
+          "type": "input",
+          "description": "Data final no modal de filtro",
+          "source": "auto"
+        },
+        "btn-filtro-buscar": {
+          "selector": "#search_creditos_contrato",
+          "type": "button",
+          "description": "Botão Procurar no modal de filtro",
+          "source": "auto"
+        }
+      },
+      "uiPatterns": [
+        "Tela READ-ONLY — sem botões de Cadastrar/Editar/Excluir",
+        "Navegação por mês: < MÊS ANO >",
+        "Badge FECHADO/EM ABERTO na coluna Situação Fechamento",
+        "Badge CRÉDITO/DÉBITO na coluna Tipo",
+        "Submenu com abas Visualizar/Créditos/etc via __submenu.php"
+      ],
+      "antiPatterns": []
+    }
+  }
+}

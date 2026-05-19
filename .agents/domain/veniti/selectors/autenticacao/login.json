@@ -1,0 +1,114 @@
+{
+  "description": "Seletores para tela de login - Assistência Portal",
+  "page_title": "Login",
+  "base_path": "/assistencia/login/",
+  "selectors": {
+    "CNPJ_INPUT": {
+      "id": "login_codigo",
+      "selector": "#login_codigo",
+      "type": "input",
+      "purpose": "Campo de entrada do CNPJ",
+      "required": true
+    },
+    "USER_INPUT": {
+      "id": "login_usuario",
+      "selector": "#login_usuario",
+      "type": "input",
+      "purpose": "Campo de entrada do usuário",
+      "required": true
+    },
+    "PASSWORD_INPUT": {
+      "id": "login_senha",
+      "selector": "#login_senha",
+      "type": "input",
+      "purpose": "Campo de entrada da senha",
+      "required": true
+    },
+    "BTN_LOGIN": {
+      "id": "bt_login_acessar",
+      "selector": "#bt_login_acessar",
+      "type": "button",
+      "purpose": "Botão para fazer login",
+      "required": true
+    },
+    "MODAL_LOGIN_ACTIVE": {
+      "id": "modal_login_ativo",
+      "selector": "#modal_login_ativo",
+      "type": "modal",
+      "purpose": "Modal que aparece quando login requer 2FA ou validação adicional",
+      "required": false
+    },
+    "BTN_CONTINUE_ACCESS": {
+      "id": "btn_continuar_acesso",
+      "selector": "#btn_continuar_acesso",
+      "type": "button",
+      "purpose": "Botão para continuar após validação 2FA",
+      "required": false
+    }
+  },
+  "validation_indicators": {
+    "success": {
+      "selector": "a:has-text('dashboard'), [href*='/dashboard/']",
+      "purpose": "Indicador de login bem-sucedido - redirecionamento para dashboard"
+    },
+    "error": {
+      "selector": "[role='alert'], .alert, .error-message",
+      "purpose": "Mensagem de erro de login"
+    }
+  },
+  "endpoints": {
+    "login_page": "login/",
+    "validation": "api/login/validacao",
+    "dashboard": "dashboard/"
+  },
+  "flow": [
+    {
+      "step": 1,
+      "action": "Navigate to login page",
+      "url": "/assistencia/login/"
+    },
+    {
+      "step": 2,
+      "action": "Fill CNPJ",
+      "selector": "#login_codigo"
+    },
+    {
+      "step": 3,
+      "action": "Fill User",
+      "selector": "#login_usuario"
+    },
+    {
+      "step": 4,
+      "action": "Fill Password",
+      "selector": "#login_senha"
+    },
+    {
+      "step": 5,
+      "action": "Click Login button",
+      "selector": "#bt_login_acessar"
+    },
+    {
+      "step": 6,
+      "action": "Wait for validation response",
+      "endpoint": "api/login/validacao",
+      "status_codes": [200, 207]
+    },
+    {
+      "step": 7,
+      "action": "If 207 (2FA required): Wait for modal and click continue",
+      "selector": "#modal_login_ativo",
+      "continue_button": "#btn_continuar_acesso"
+    },
+    {
+      "step": 8,
+      "action": "Verify redirect to dashboard",
+      "validation": "URL contains '/dashboard/'"
+    }
+  ],
+  "notes": [
+    "Status 200 = login bem-sucedido, redireciona para dashboard",
+    "Status 207 = login requer 2FA/validação adicional, modal aparece",
+    "Status 400 = credenciais inválidas, permanece na página de login",
+    "Sempre limpar storage/cookies antes de testar login para garantir estado limpo"
+  ]
+}

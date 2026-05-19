@@ -1,0 +1,314 @@
+{
+  "feature": "relatorio-atendimentos",
+  "exploredAt": "2026-04-16",
+  "exploredBy": "agent1",
+  "notes": "Seletores mapeados via Playwright MCP em sessão de exploração direta. Contexto: teste de urgência — problema de desempenho nos filtros.",
+  "knownIssues": [
+    "Select2: selectOption() não funciona — usar jQuery eval: page.evaluate(() => { $('#id').val(v).trigger('change') }) + waitForFunction para confirmar commit antes de clicar Procurar",
+    "Número do Lote usa ID #rel_atendimento_num_faturado (divergência entre ID e label da UI)",
+    ".dt-button.buttons-excel resolve 2 elementos (XLS completo e XLS colunas visíveis) — usar .first() ou .excelButtonVisible para distinguir",
+    "Filtros booleanos (Reembolso, Faturado, Parceiro, Arquivo, Pagamento a vista, Acionamento Automático) não possuem opção TODOS — vazio = sem filtro",
+    "Tipo de atendimento não possui opção TODOS — vazio = sem filtro",
+    "Checkboxes Avulso e Caso 99 podem ser estilizados — verificar se label[for=...] é necessário para clique",
+    "Colunas Data, Tipo de Serviço e Tipo de evento são ordenáveis (DataTables) — aguardar reordenação após clique no header"
+  ],
+  "screens": {
+    "relatorio-atendimentos": {
+      "url": "/assistencia/relatorios/atendimentos/",
+      "selectors": {
+        "menuItemRelatorio": {
+          "selector": "a[href='/assistencia/relatorios/atendimentos/']",
+          "type": "link",
+          "description": "Item 'Atendimentos' no submenu de Relatórios"
+        },
+        "breadcrumb": {
+          "selector": "h2",
+          "type": "heading",
+          "description": "Texto: 'Relatórios / Atendimentos'"
+        },
+        "periodoDe": {
+          "selector": "#atendimento_data_de",
+          "type": "input",
+          "description": "Campo data início do período. Default: hoje − 30 dias. Formato: DD/MM/YYYY"
+        },
+        "periodoAte": {
+          "selector": "#atendimento_data_ate",
+          "type": "input",
+          "description": "Campo data fim do período. Default: hoje. Formato: DD/MM/YYYY"
+        },
+        "filtroTipoServico": {
+          "selector": "#rel_atendimento_tipo_servico",
+          "type": "select",
+          "description": "Select2 multi-select — NÃO usar selectOption(). Usar jQuery API. Suporta múltiplos valores: .val(['REBOQUE LEVE', 'REBOQUE PESADO']).trigger('change')",
+          "options": ["TODOS", "CARRO RESERVA", "CHAVEIRO AUTOMOTIVO - IMPORTADO", "CHAVEIRO AUTOMOTIVO - NACIONAL", "DESPACHANTE AUTO", "ENVIO DE ACOMPANHANTE", "ENVIO DE COMBUSTIVEL", "GUARDA DE VEICULO", "HOSPEDAGEM", "INSTALACAO DE RASTREADOR VEICULAR", "MOTORISTA AMIGO", "RASTREAMENTO", "REBOQUE EXTRA PESADO", "REBOQUE GARAGEM", "REBOQUE LEVE", "REBOQUE MOTO", "REBOQUE PESADO", "REBOQUE UTILITARIO", "SOCORRO BORRACHEIRO LEVE", "SOCORRO ELETRICO LEVE", "SOCORRO ELETRICO PESADO", "SOCORRO MECANICO LEVE", "SOCORRO MECANICO PESADO", "SUBSTITUICAO DE PNEU", "TROCA DE BATERIA", "VIDRACEIRO", "VISTORIA"]
+        },
+        "filtroStatus": {
+          "selector": "#rel_atendimento_status",
+          "type": "select",
+          "description": "Select2 single — NÃO usar selectOption(). Usar jQuery API.",
+          "options": ["TODOS", "ABERTO", "AGUARDANDO ACEITE", "SERVIÇO ACEITO", "NA ORIGEM", "NO DESTINO", "NEGADO", "RECUPERADO", "NÃO RECUPERADO", "EM BUSCA", "CANCELADO", "FINALIZADO", "NEGATIVA", "NPS PENDENTE"]
+        },
+        "filtroCliente": {
+          "selector": "#rel_atendimento_id_cliente",
+          "type": "select",
+          "description": "Listbox multi-select nativo. Ao selecionar cliente, popula dinamicamente #rel_atendimento_plano. Usar .val([...]).trigger('change') via jQuery.",
+          "knownClients": ["AGENTECLI", "ALFANUMERICO", "AUTOMACAOCLI", "BRADESCO", "CREDITOCLI", "EZZE SEGUROS", "GEOVANNA CLIENTE", "LIMITACAOCLI", "LUCASCLI", "NUMERICO"]
+        },
+        "filtroPrestador": {
+          "selector": "#rel_atendimento_id_prestador",
+          "type": "select",
+          "description": "Select2 single — NÃO usar selectOption(). Usar jQuery API.",
+          "knownPrestadores": ["PRESTADOR QA", "SOS SANTOS", "ALFANUMERICO", "COM HORARIO", "CPF", "AUTO JMAAA"]
+        },
+        "filtroTipoAtendimento": {
+          "selector": "#rel_atendimento_tipo_atendimento",
+          "type": "select",
+          "description": "Select2 single. SEM opção TODOS — vazio = sem filtro.",
+          "options": ["Assistência", "Aviso de colisão", "Dúvida", "Roubo / Furto"]
+        },
+        "filtroPlano": {
+          "selector": "#rel_atendimento_plano",
+          "type": "select",
+          "description": "Select2 single. Filtrado dinamicamente pelo cliente selecionado em #rel_atendimento_id_cliente. Usar jQuery API.",
+          "options_sample": ["TODOS", "PLANO VEICULOS", "PLANO BENEFICIARIO", "AUTOMACAO PLANO AUTO", "PET PLANO", "PLANO BRADESCO", "AGENTE PLANO AUTO"]
+        },
+        "filtroCidade": {
+          "selector": "#rel_atendimento_cidades",
+          "type": "select",
+          "description": "Select2 single. Filtrado dinamicamente pelo estado selecionado em #rel_atendimento_estados. Usar jQuery API."
+        },
+        "filtroEstado": {
+          "selector": "#rel_atendimento_estados",
+          "type": "select",
+          "description": "Select2 single. Ao selecionar, popula #rel_atendimento_cidades. Usar jQuery API.",
+          "options": ["ACRE", "ALAGOAS", "AMAPA", "AMAZONAS", "BAHIA", "CEARA", "DISTRITO FEDERAL", "ESPIRITO SANTO", "GOIAS", "MARANHAO", "MATO GROSSO", "MATO GROSSO DO SUL", "MINAS GERAIS", "PARA", "PARAIBA", "PARANA", "PERNAMBUCO", "PIAUI", "RIO DE JANEIRO", "RIO GRANDE DO NORTE", "RIO GRANDE DO SUL", "RONDONIA", "RORAIMA", "SANTA CATARINA", "SAO PAULO", "SERGIPE", "TOCANTINS"]
+        },
+        "filtroBeneficiario": {
+          "selector": "#rel_atendimento_beneficiario",
+          "type": "input",
+          "description": "Input texto livre. Suporta busca parcial por nome ou CPF/CNPJ do beneficiário."
+        },
+        "filtroResponsavelTipo": {
+          "selector": "#rel_atendimento_responsavel",
+          "type": "select",
+          "description": "Select2 single. Ao selecionar, popula #rel_atendimento_grupos. Usar jQuery API.",
+          "options": ["ACIONAMENTO", "ACOMPANHAMENTO"]
+        },
+        "filtroResponsavelGrupo": {
+          "selector": "#rel_atendimento_grupos",
+          "type": "select",
+          "description": "Select2 single. Filtrado pelo tipo em #rel_atendimento_responsavel. Usar jQuery API.",
+          "options_sample": ["VIP"]
+        },
+        "filtroTipoVeiculo": {
+          "selector": "#rel_atendimento_tipo",
+          "type": "select",
+          "description": "Select2 single. Usar jQuery API.",
+          "options": ["TODOS", "AUTOMOVEL", "BARCO", "CAMINHAO", "CARRETA", "HIBRIDO", "MOTO", "ONIBUS", "PICKUP", "TRATOR", "VAN"]
+        },
+        "filtroReembolso": {
+          "selector": "#rel_atendimento_reembolso",
+          "type": "select",
+          "description": "Select2 single. SEM opção TODOS — vazio = sem filtro. Usar jQuery API.",
+          "options": ["SIM", "NÃO"]
+        },
+        "filtroPlaca": {
+          "selector": "#rel_atendimento_placa",
+          "type": "input",
+          "description": "Input texto livre. Suporta busca parcial por placa do veículo."
+        },
+        "filtroProtocolo": {
+          "selector": "#rel_atendimento_protocolo",
+          "type": "input",
+          "description": "Input texto. Número do protocolo do atendimento."
+        },
+        "filtroNumeroLote": {
+          "selector": "#rel_atendimento_num_faturado",
+          "type": "input",
+          "description": "⚠️ ID diverge do label: o campo exibido como 'Número do Lote' tem ID #rel_atendimento_num_faturado."
+        },
+        "filtroFaturado": {
+          "selector": "#rel_atendimento_faturado",
+          "type": "select",
+          "description": "Select2 single. SEM opção TODOS — vazio = sem filtro. Usar jQuery API.",
+          "options": ["SIM", "NÃO"]
+        },
+        "filtroParceiro": {
+          "selector": "#rel_atendimento_parceiro",
+          "type": "select",
+          "description": "Select2 single. SEM opção TODOS — vazio = sem filtro. Usar jQuery API.",
+          "options": ["SIM", "NÃO"]
+        },
+        "filtroUsuario": {
+          "selector": "#rel_atendimento_usuario",
+          "type": "select",
+          "description": "Select2 single. Usar jQuery API.",
+          "options_sample": ["TODOS", "AGENT1", "AGENT2", "AGENT3", "LUCAS", "GEOVANNA"]
+        },
+        "filtroCodigoContrato": {
+          "selector": "#rel_atendimento_codigo_contrato",
+          "type": "input",
+          "description": "Input texto. Código do contrato do beneficiário."
+        },
+        "filtroVigencia": {
+          "selector": "#rel_atendimento_vigencia",
+          "type": "select",
+          "description": "Select2 single. SEM opção TODOS — vazio = sem filtro. Usar jQuery API.",
+          "options": ["FORA DA VIGÊNCIA", "DENTRO DA VIGÊNCIA", "VIGÊNCIA DECORRIDA"]
+        },
+        "filtroTipoEvento": {
+          "selector": "#rel_atendimento_tipo_evento",
+          "type": "select",
+          "description": "Select2 single. SEM opção TODOS — vazio = sem filtro. Usar jQuery API.",
+          "options": ["ACIDENTE", "ANIMAL", "CLIENTES ESPECIFICO", "COLISAO", "FUNERAL", "FUNERAL PET", "LIMITE", "OUTRO CLIENTE", "RESIDENCIAL", "TODOS OS CLIENTES", "VIDA"]
+        },
+        "filtroPossuiArquivo": {
+          "selector": "#rel_atendimento_possui_arquivo",
+          "type": "select",
+          "description": "Select2 single. SEM opção TODOS — vazio = sem filtro. Usar jQuery API.",
+          "options": ["SIM", "NÃO"]
+        },
+        "filtroTipoSuporte": {
+          "selector": "#rel_atendimento_tipo_suporte",
+          "type": "select",
+          "description": "Select2 single. Opções dinâmicas — configuradas no sistema. Usar jQuery API."
+        },
+        "filtroAVista": {
+          "selector": "#rel_atendimento_a_vista",
+          "type": "select",
+          "description": "Select2 single. SEM opção TODOS — vazio = sem filtro. Usar jQuery API.",
+          "options": ["SIM", "NÃO"]
+        },
+        "filtroTags": {
+          "selector": "#rel_atendimento_tags",
+          "type": "select",
+          "description": "Listbox multi-select nativo. Usar .val([...]).trigger('change') via jQuery.",
+          "options_sample": ["TESTE", "TAG REEMBOLSO", "REEMBOLSO 2"]
+        },
+        "filtroAcionamentoAutomatico": {
+          "selector": "#rel_atendimento_acionamento_automatico",
+          "type": "select",
+          "description": "Select2 single. SEM opção TODOS — vazio = sem filtro. Usar jQuery API.",
+          "options": ["SIM", "NÃO"]
+        },
+        "checkboxAvulso": {
+          "selector": "#rel_atendimento_avulso",
+          "type": "checkbox",
+          "labelSelector": "label[for='rel_atendimento_avulso']",
+          "description": "Checkbox. Se estilizado, usar o labelSelector para interagir."
+        },
+        "checkboxCaso99": {
+          "selector": "#rel_atendimento_caso_99",
+          "type": "checkbox",
+          "labelSelector": "label[for='rel_atendimento_caso_99']",
+          "description": "Checkbox. Se estilizado, usar o labelSelector para interagir."
+        },
+        "btnLimpar": {
+          "selector": "#btn_atendimentos_limpar_filtro",
+          "type": "button",
+          "description": "Botão de limpar filtros — sem texto visível (ícone). Restaura formulário ao estado padrão."
+        },
+        "btnProcurar": {
+          "selector": "#btn_atendimentos_filtrar",
+          "type": "button",
+          "description": "Texto: 'Procurar...'. Executa a pesquisa com os filtros preenchidos."
+        },
+        "tabela": {
+          "selector": "#datatable_rel_atendimentos",
+          "type": "table",
+          "description": "DataTable com os resultados da pesquisa."
+        },
+        "estadoVazio": {
+          "selector": "td.dataTables_empty",
+          "type": "cell",
+          "description": "Texto exato: 'Nenhum resultado encontrado!'"
+        },
+        "paginacao": {
+          "selector": "#datatable_rel_atendimentos_paginate",
+          "type": "generic"
+        },
+        "btnProxima": {
+          "selector": "#datatable_rel_atendimentos_paginate .next",
+          "type": "button"
+        },
+        "btnAnterior": {
+          "selector": "#datatable_rel_atendimentos_paginate .previous",
+          "type": "button"
+        },
+        "btnExportarXls": {
+          "selector": ".dt-button.buttons-excel:not(.excelButtonVisible)",
+          "type": "button",
+          "description": "⚠️ .dt-button.buttons-excel resolve 2 elementos. Usar :not(.excelButtonVisible) para o XLS completo."
+        },
+        "btnExportarCsv": {
+          "selector": ".dt-button.buttons-csv",
+          "type": "button"
+        },
+        "btnExportarXlsColunasVisiveis": {
+          "selector": ".dt-button.excelButtonVisible",
+          "type": "button",
+          "description": "Exporta apenas as colunas marcadas como visíveis."
+        },
+        "btnExportarPdf": {
+          "selector": ".dt-button.buttons-pdf",
+          "type": "button"
+        },
+        "btnImprimir": {
+          "selector": ".dt-button.buttons-print",
+          "type": "button"
+        },
+        "btnAlterarColunas": {
+          "selector": ".dt-button.buttons-colvis",
+          "type": "button",
+          "description": "Texto: 'Altere as colunas'"
+        },
+        "btnSalvarAlteracao": {
+          "selector": ".dt-button:has-text('Salvar alteração')",
+          "type": "button",
+          "description": "Persiste configuração de colunas para o usuário."
+        },
+        "estadoBotoesExportacao": {
+          "description": "Classe 'not-allowed' indica botão desabilitado. Remover essa classe indica habilitação após pesquisa com resultados.",
+          "disabledClass": "not-allowed",
+          "example": ".dt-button.buttons-excel.not-allowed"
+        }
+      },
+      "uiPatterns": [
+        "Todos os Select2 exigem jQuery API: page.evaluate(() => { $('#id').val(v).trigger('change') }) + waitForFunction para confirmar antes de clicar Procurar",
+        "Filtros booleanos (Reembolso, Faturado, Parceiro, Arquivo, Pagamento a vista, Acionamento Automático) não têm TODOS — vazio = sem filtro",
+        "Tipo de atendimento não tem TODOS — vazio = sem filtro",
+        "Campo Plano depende do Cliente selecionado (Select2 dinâmico)",
+        "Campo Cidade depende do Estado selecionado (Select2 dinâmico)",
+        "Botões de exportação têm classe 'not-allowed' enquanto desabilitados",
+        "Período default = últimos 30 dias ao carregar a página",
+        "Botão Limpar: #btn_atendimentos_limpar_filtro (sem texto, apenas ícone)",
+        "Botão Procurar: #btn_atendimentos_filtrar — texto 'Procurar...'"
+      ],
+      "antiPatterns": [
+        "NÃO usar selectOption() nos filtros Select2 — não funciona (select está hidden)",
+        "NÃO usar .dt-button.buttons-excel sem qualificador — resolve 2 elementos",
+        "NÃO confundir #rel_atendimento_num_faturado com o campo Faturado — esse ID é o Número do Lote",
+        "NÃO assumir que checkboxes Avulso/Caso 99 aceitam click direto sem verificar se são estilizados"
+      ]
+    }
+  },
+  "testData": {
+    "clientes": {
+      "AGENTECLI": { "nome": "AGENTECLI" },
+      "LUCASCLI": { "nome": "LUCASCLI" },
+      "BRADESCO": { "nome": "BRADESCO" },
+      "EZZE SEGUROS": { "nome": "EZZE SEGUROS" },
+      "ALFANUMERICO": { "nome": "ALFANUMERICO", "observacao": "Usar para estado vazio se não tiver atendimentos" }
+    },
+    "prestadores": {
+      "PRESTADOR QA": { "cnpj": "57.037.036/0001-67" },
+      "SOS SANTOS": { "cnpj": "60.199.438/0001-72" }
+    },
+    "statusDisponiveis": ["ABERTO", "AGUARDANDO ACEITE", "SERVIÇO ACEITO", "NA ORIGEM", "NO DESTINO", "NEGADO", "RECUPERADO", "NÃO RECUPERADO", "EM BUSCA", "CANCELADO", "FINALIZADO", "NEGATIVA", "NPS PENDENTE"],
+    "tiposVeiculoDisponiveis": ["AUTOMOVEL", "BARCO", "CAMINHAO", "CARRETA", "HIBRIDO", "MOTO", "ONIBUS", "PICKUP", "TRATOR", "VAN"],
+    "tiposEventoDisponiveis": ["ACIDENTE", "ANIMAL", "CLIENTES ESPECIFICO", "COLISAO", "FUNERAL", "FUNERAL PET", "LIMITE", "OUTRO CLIENTE", "RESIDENCIAL", "TODOS OS CLIENTES", "VIDA"],
+    "vigenciaOpcoes": ["FORA DA VIGÊNCIA", "DENTRO DA VIGÊNCIA", "VIGÊNCIA DECORRIDA"],
+    "tagsDisponiveis": ["TESTE", "TAG REEMBOLSO", "REEMBOLSO 2"],
+    "usuariosDisponiveis": ["AGENT1", "AGENT2", "AGENT3", "LUCAS", "GEOVANNA"]
+  }
+}

@@ -1,0 +1,309 @@
+{
+  "feature": "edicao-em-massa-contas-a-pagar",
+  "exploredAt": "2026-05-17T14:41:00Z",
+  "exploredBy": "agent1",
+  "notes": "Mapeamento completo via Playwright MCP. Feature de edição em massa confirmada deployada. Todos os IDs verificados na aplicação real.",
+  "knownIssues": [
+    "Checkboxes têm <label class='c-choice__label'> que intercepta pointer events — SEMPRE clicar no label, nunca diretamente no input",
+    "Coluna 'Pagamento para' na UI difere de 'Pagamento por' mencionado na spec — usar o nome real da UI",
+    "A tab 'Procurar' no snapshot aparece como [expanded] mesmo quando a listagem principal está visível — comportamento cosmético, não afeta testes"
+  ],
+  "screens": {
+    "contas-a-pagar-listagem": {
+      "url": "/assistencia/contas_pagar/index.php",
+      "selectors": {
+        "breadcrumb": {
+          "selector": "getByRole('heading', { level: 2 })",
+          "type": "heading",
+          "description": "Breadcrumb — texto: 'Financeiro / Contas a Pagar / Visualizar'"
+        },
+        "tituloPagina": {
+          "selector": "getByRole('heading', { level: 6, name: 'Contas a Pagar' })",
+          "type": "heading",
+          "description": "Título interno do card: 'Contas a Pagar'"
+        },
+        "tabVisualizar": {
+          "selector": "getByRole('link', { name: 'Visualizar' })",
+          "type": "link",
+          "description": "Aba Visualizar — href: index.php"
+        },
+        "tabCadastrar": {
+          "selector": "getByRole('link', { name: 'Cadastrar' })",
+          "type": "link",
+          "description": "Aba Cadastrar — href: cadastrar.php"
+        },
+        "tabProcurar": {
+          "selector": "getByRole('link', { name: 'Procurar' })",
+          "type": "link",
+          "description": "Aba Procurar — href: #stage-panel1 (filtros de busca)"
+        },
+        "btnExportarXls": {
+          "selector": "getByRole('button', { name: '.XLS' })",
+          "type": "button",
+          "description": "Botão exportar .XLS"
+        },
+        "btnExportarCsv": {
+          "selector": "getByRole('button', { name: '.CSV' })",
+          "type": "button",
+          "description": "Botão exportar .CSV"
+        },
+        "btnAlterarColunas": {
+          "selector": "getByRole('button', { name: 'Altere as colunas' })",
+          "type": "button",
+          "description": "Botão para configurar colunas visíveis do datatable"
+        },
+        "gridContasPagar": {
+          "selector": "getByRole('grid')",
+          "type": "grid",
+          "description": "DataTable de títulos. Colunas (com feature): checkbox, Data de Vencimento, Categoria, Nº Nota Fiscal, Parcela, Pagamento para, Nome da Empresa, Forma de Pagamento, Valor (R$), Status"
+        },
+        "checkboxCabecalho": {
+          "selector": "page.locator('label[for=\"select_all_batch\"]')",
+          "type": "checkbox",
+          "description": "Label do checkbox de cabeçalho para selecionar/desmarcar todos os itens da página. ID do input: select_all_batch. CLICAR NO LABEL, não no input — o label intercepta pointer events"
+        },
+        "checkboxLinha": {
+          "selector": "page.locator('label[for=\"batch_select_{id}\"]')",
+          "type": "checkbox",
+          "description": "Label do checkbox de uma linha. Substituir {id} pelo data-id do título. Padrão: batch_select_1145. CLICAR NO LABEL — o input .batch-select tem label que intercepta cliques"
+        },
+        "inputCheckboxLinha": {
+          "selector": "page.locator('.batch-select').filter({ has: page.locator('[data-value=\"{valor}\"]') })",
+          "type": "checkbox",
+          "description": "Input checkbox de linha filtrado pelo data-value (valor numérico do título, ex: '6956.66'). Útil para localizar linha por valor conhecido"
+        },
+        "statusResultados": {
+          "selector": "getByRole('status')",
+          "type": "status",
+          "description": "Texto 'Mostrando X de Y resultado(s) (Filtro de Z resultados)'"
+        },
+        "btnPaginaAnterior": {
+          "selector": "getByText('Anterior')",
+          "type": "button",
+          "description": "Botão paginação — página anterior"
+        },
+        "btnProximaPagina": {
+          "selector": "getByText('Próxima')",
+          "type": "button",
+          "description": "Botão paginação — próxima página"
+        }
+      },
+      "uiPatterns": [
+        "Clicar em qualquer célula da linha (exceto a primeira coluna com checkbox) navega para a tela de detalhe/edição do título",
+        "A linha de totais ('Valor Total R$:') aparece no fim do rowgroup — não é um título selecionável",
+        "Status dos títulos exibidos em badge colorido: PAGO, VENCIDO, AGENDADO",
+        "Coluna 'Nome da Empresa' pode conter link 'Visualizar contas bancarias do prestador.' inline para prestadores"
+      ],
+      "antiPatterns": [
+        "NUNCA clicar diretamente no input checkbox — a <label class='c-choice__label'> intercepta pointer events. Sempre clicar em label[for='batch_select_{id}'] ou label[for='select_all_batch']",
+        "Não selecionar linhas por índice — a ordem pode variar com filtros e ordenação",
+        "Não usar a linha de totais como dado de teste — ela não representa um título real"
+      ]
+    },
+    "contas-a-pagar-com-selecao-ativa": {
+      "url": "/assistencia/contas_pagar/index.php",
+      "notes": "Estado da tela quando há ao menos 1 item selecionado. A barra flutuante #batch_floating aparece na base da área de conteúdo.",
+      "selectors": {
+        "barraFlutuante": {
+          "selector": "page.locator('#batch_floating')",
+          "type": "generic",
+          "description": "Container da barra flutuante — visível quando há ≥1 item selecionado. Classe: c-card + animate__slideInUp"
+        },
+        "contadorItens": {
+          "selector": "page.locator('#batch_count')",
+          "type": "text",
+          "description": "Span com a quantidade de itens selecionados. Texto ex: '1', '2'. ID: batch_count"
+        },
+        "valorTotalSelecionado": {
+          "selector": "page.locator('#batch_total')",
+          "type": "text",
+          "description": "Span com o valor total somado dos itens selecionados. Texto ex: 'R$ 6.956,66'. ID: batch_total"
+        },
+        "btnLiquidar": {
+          "selector": "page.locator('#btn_batch_liquidar')",
+          "type": "button",
+          "description": "Botão 'Liquidar' na barra flutuante. ID: btn_batch_liquidar. Abre modal single (1 item) ou multi (N itens)"
+        },
+        "btnAgendar": {
+          "selector": "page.locator('#btn_batch_agendar')",
+          "type": "button",
+          "description": "Botão 'Agendar' na barra flutuante. ID: btn_batch_agendar. Abre modal_batch_agendar"
+        }
+      },
+      "uiPatterns": [
+        "Barra flutuante aparece com animação slideInUp ao selecionar o primeiro item",
+        "Barra flutuante some ao desmarcar todos os itens",
+        "Seleção é limpa automaticamente ao paginar, filtrar ou ordenar — barra some junto"
+      ]
+    },
+    "modal-liquidar-item-unico": {
+      "url": "/assistencia/contas_pagar/index.php",
+      "notes": "Modal aberto pelo #btn_batch_liquidar quando exatamente 1 item está selecionado. ID do modal: modal_batch_liquidar_single",
+      "selectors": {
+        "modal": {
+          "selector": "page.locator('#modal_batch_liquidar_single')",
+          "type": "dialog",
+          "description": "Container do modal de liquidação de item único. Classe: c-modal modal fade show"
+        },
+        "tituloModal": {
+          "selector": "page.locator('#modal_batch_liquidar_single h3')",
+          "type": "heading",
+          "description": "Título do modal: 'Liquidar Conta'"
+        },
+        "labelItem": {
+          "selector": "page.locator('#single_item_info_label')",
+          "type": "text",
+          "description": "Span com o identificador do item (Nº Nota Fiscal). ID: single_item_info_label"
+        },
+        "labelValorOriginal": {
+          "selector": "page.locator('#single_total_info_label')",
+          "type": "text",
+          "description": "Span com o valor original do título. ID: single_total_info_label"
+        },
+        "campoDataPagamento": {
+          "selector": "page.locator('#single_date_pagto')",
+          "type": "input",
+          "description": "Campo Data de Pagamento — obrigatório, pré-preenchido com data atual (dd/mm/aaaa). ID: single_date_pagto"
+        },
+        "campoValorPago": {
+          "selector": "page.locator('#single_valor_pago')",
+          "type": "input",
+          "description": "Campo Valor Pago (R$) — obrigatório, pré-preenchido com o valor original do título. ID: single_valor_pago"
+        },
+        "campoDesconto": {
+          "selector": "page.locator('#single_desconto')",
+          "type": "input",
+          "description": "Campo Desconto (R$) — DISABLED, preenchido automaticamente quando valor pago < valor original. ID: single_desconto"
+        },
+        "campoJuros": {
+          "selector": "page.locator('#single_juros')",
+          "type": "input",
+          "description": "Campo Juros (R$) — DISABLED, preenchido automaticamente quando valor pago > valor original. ID: single_juros"
+        },
+        "btnConfirmar": {
+          "selector": "page.locator('#btn_confirm_liquidar_single')",
+          "type": "button",
+          "description": "Botão 'Confirmar Pagamento' — submete a liquidação. ID: btn_confirm_liquidar_single"
+        },
+        "btnCancelar": {
+          "selector": "page.locator('#modal_batch_liquidar_single').getByRole('button', { name: 'Cancelar' })",
+          "type": "button",
+          "description": "Botão Cancelar — fecha sem executar ação; seleção é preservada"
+        },
+        "btnFechar": {
+          "selector": "page.locator('#modal_batch_liquidar_single .c-modal__close')",
+          "type": "button",
+          "description": "Botão × fechar modal. Seletor CSS: .c-modal__close. Alternativa: tecla Escape"
+        }
+      },
+      "uiPatterns": [
+        "Campos Desconto e Juros são disabled — verificar com expect(campo).toBeDisabled()",
+        "Ao mudar o Valor Pago e sair do campo (blur), o sistema recalcula Desconto ou Juros automaticamente",
+        "Data de pagamento pré-preenchida com a data atual — formatada como dd/mm/aaaa",
+        "Valor Pago pré-preenchido com o valor original do título",
+        "Fechar via botão Cancelar ou × mantém a seleção ativa; nenhuma alteração é feita"
+      ],
+      "antiPatterns": [
+        "Não tentar digitar nos campos #single_desconto ou #single_juros — são disabled"
+      ]
+    },
+    "modal-liquidar-lote": {
+      "url": "/assistencia/contas_pagar/index.php",
+      "notes": "Modal aberto pelo #btn_batch_liquidar quando 2 ou mais itens estão selecionados. ID do modal: modal_batch_liquidar_multi",
+      "selectors": {
+        "modal": {
+          "selector": "page.locator('#modal_batch_liquidar_multi')",
+          "type": "dialog",
+          "description": "Container do modal de liquidação em lote. Classe: c-modal modal fade show"
+        },
+        "tituloModal": {
+          "selector": "page.locator('#modal_batch_liquidar_multi h3')",
+          "type": "heading",
+          "description": "Título do modal: 'Liquidar Contas em Lote'"
+        },
+        "labelQuantidade": {
+          "selector": "page.locator('#multi_count_label')",
+          "type": "text",
+          "description": "Span com a quantidade de itens a liquidar. ID: multi_count_label"
+        },
+        "labelValorTotal": {
+          "selector": "page.locator('#multi_total_label')",
+          "type": "text",
+          "description": "Span com o valor total somado dos itens. ID: multi_total_label"
+        },
+        "alertaValorIntegral": {
+          "selector": "page.locator('#modal_batch_liquidar_multi .c-alert--warning')",
+          "type": "alert",
+          "description": "Alerta amarelo: 'Atenção: Todos os títulos serão liquidados com o valor integral original.'"
+        },
+        "campoDataPagamento": {
+          "selector": "page.locator('#multi_date_pagto')",
+          "type": "input",
+          "description": "Campo Data de Pagamento — único campo editável no modal de lote. ID: multi_date_pagto"
+        },
+        "btnConfirmar": {
+          "selector": "page.locator('#btn_confirm_liquidar_multi')",
+          "type": "button",
+          "description": "Botão de confirmação da liquidação em lote. ID: btn_confirm_liquidar_multi"
+        },
+        "btnFechar": {
+          "selector": "page.locator('#modal_batch_liquidar_multi .c-modal__close')",
+          "type": "button",
+          "description": "Botão × fechar modal de lote"
+        }
+      },
+      "uiPatterns": [
+        "Modal de lote NÃO exibe campos de Valor Pago, Juros nem Desconto — verificar ausência desses campos",
+        "Alerta .c-alert--warning exibe aviso sobre valor integral original"
+      ],
+      "antiPatterns": [
+        "Não assumir que o modal de lote tem os mesmos campos do modal de item único — IDs e estrutura são diferentes"
+      ]
+    },
+    "modal-agendar": {
+      "url": "/assistencia/contas_pagar/index.php",
+      "notes": "Modal único para agendar — mesmo modal para 1 ou múltiplos itens. ID: modal_batch_agendar",
+      "selectors": {
+        "modal": {
+          "selector": "page.locator('#modal_batch_agendar')",
+          "type": "dialog",
+          "description": "Container do modal de agendamento. Classe: c-modal modal fade show"
+        },
+        "tituloModal": {
+          "selector": "page.locator('#modal_batch_agendar h3')",
+          "type": "heading",
+          "description": "Título do modal: 'Agendar Pagamento'"
+        },
+        "labelQuantidade": {
+          "selector": "page.locator('#agendar_count_label')",
+          "type": "text",
+          "description": "Span com a quantidade de itens a agendar. ID: agendar_count_label"
+        },
+        "labelValorTotal": {
+          "selector": "page.locator('#agendar_total_label')",
+          "type": "text",
+          "description": "Span com o valor total somado dos itens. ID: agendar_total_label"
+        },
+        "campoDataAgendamento": {
+          "selector": "page.locator('#batch_date_agendar')",
+          "type": "input",
+          "description": "Campo Data de Agendamento — obrigatório, pré-preenchido com data atual (dd/mm/aaaa). ID: batch_date_agendar"
+        },
+        "btnConfirmar": {
+          "selector": "page.locator('#btn_confirm_agendar_batch')",
+          "type": "button",
+          "description": "Botão de confirmação do agendamento. ID: btn_confirm_agendar_batch"
+        },
+        "btnFechar": {
+          "selector": "page.locator('#modal_batch_agendar .c-modal__close')",
+          "type": "button",
+          "description": "Botão × fechar modal de agendamento"
+        }
+      },
+      "uiPatterns": [
+        "Modal Agendar é idêntico para 1 ou N itens — apenas os labels de quantidade e valor total variam",
+        "Data de agendamento pré-preenchida com a data atual — formatada como dd/mm/aaaa"
+      ]
+    }
+  }
+}

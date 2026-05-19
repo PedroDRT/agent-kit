@@ -1,0 +1,224 @@
+{
+  "feature": "relatorio-contratos-por-cliente",
+  "exploredAt": "2026-04-10T15:30:00Z",
+  "validatedAt": "2026-04-10",
+  "exploredBy": "agent3",
+  "validatedBy": "Run 10 — 32/32 passed",
+  "notes": "Seletores validados em execução automatizada completa. Arquivo anterior: knowledge/system/selectors/relatorio-contratos-por-cliente.json (supersedido).",
+  "knownIssues": [
+    "h6 resolve 6+ elementos — sempre usar .filter({ hasText: 'Relatório de Contratos por Cliente' })",
+    "Select2: selectOption() não funciona — usar jQuery eval. Aguardar waitForFunction após trigger('change') antes de clicar Filtrar",
+    "tr.dtrg-group é renderizado assincronamente — aguardar .first().toBeVisible() antes de .count()",
+    "Checkbox de permissão é estilizado — clicar em label[for='...'], não no input",
+    "Overlay #preloading bloqueia cliques após DOMContentLoaded — aguardar hidden antes de interagir",
+    "browser.newContext() causa ERR_CONNECTION_REFUSED no ambiente local — usar request fixture para teste sem autenticação"
+  ],
+  "screens": {
+    "login": {
+      "url": "/assistencia/login/",
+      "selectors": {
+        "campoCnpj": {
+          "selector": "getByRole('textbox', { name: 'CPF/CNPJ' })",
+          "type": "input"
+        },
+        "campoUsuario": {
+          "selector": "getByRole('textbox', { name: 'Usuário' })",
+          "type": "input"
+        },
+        "campoSenha": {
+          "selector": "getByRole('textbox', { name: 'Senha' })",
+          "type": "input"
+        },
+        "btnLogar": {
+          "selector": "getByRole('button', { name: 'Logar como Assistência' })",
+          "type": "button"
+        }
+      },
+      "uiPatterns": [
+        "Login bem-sucedido redireciona para /assistencia/dashboard/"
+      ]
+    },
+    "relatorio-contratos": {
+      "url": "/assistencia/relatorios/contratoxcliente/",
+      "selectors": {
+        "menuItemRelatorio": {
+          "selector": "a[href='/assistencia/relatorios/contratoxcliente/']",
+          "type": "link",
+          "description": "Item 'Contrato por clientes' no menu lateral de Relatórios"
+        },
+        "breadcrumb": {
+          "selector": "h2",
+          "type": "heading",
+          "description": "Breadcrumb — texto: 'Relatórios / Contratos por Cliente'"
+        },
+        "tituloPagina": {
+          "selector": "h6",
+          "type": "heading",
+          "description": "Título interno — USAR .filter({ hasText: 'Relatório de Contratos por Cliente' }) — há 6+ h6 na página"
+        },
+        "filtroCliente": {
+          "selector": "#contratos_clientes_id_cliente",
+          "type": "select",
+          "description": "Select2 multi-select — NÃO usar selectOption(). Interagir via: page.evaluate(() => { $('#contratos_clientes_id_cliente').val(value).trigger('change') }). Aguardar waitForFunction após.",
+          "select2Values": "IDs numéricos dos clientes: LUCASCLI=4143, GEOVANNA CLIENTE=4144, AUTOMACAOCLI=4439, LIMITACAOCLI=4445, CREDITOCLI=4448, EZZE SEGUROS=4453, BRADESCO=4470, ALFANUMERICO=4481, NUMERICO=4482, AGENTECLI=4483"
+        },
+        "filtroContrato": {
+          "selector": "#contratos_clientes_id_contrato",
+          "type": "input",
+          "description": "Input texto para código do contrato — suporta busca parcial"
+        },
+        "filtroSituacao": {
+          "selector": "#contratos_clientes_situacao",
+          "type": "select",
+          "description": "Select2 — valores: '1'=Em vigência, '0'=Vencido, ''=todos"
+        },
+        "filtroStatus": {
+          "selector": "#contratos_clientes_status",
+          "type": "select",
+          "description": "Select2 — valores: '1'=Ativo, '0'=Inativo, ''=todos"
+        },
+        "btnFiltrar": {
+          "selector": "#btn_contratos_clientes_filtrar",
+          "type": "button",
+          "description": "Botão 'Filtrar...' — texto com reticências"
+        },
+        "btnLimpar": {
+          "selector": "#btn_contratos_clientes_limpar_filtro",
+          "type": "button",
+          "description": "Botão ícone para limpar filtros — sem texto visível"
+        },
+        "tabela": {
+          "selector": "#datatable_contratos_clientes",
+          "type": "table"
+        },
+        "tabelaCorpo": {
+          "selector": "#datatable_contratos_clientes tbody",
+          "type": "generic"
+        },
+        "tabelaProcessando": {
+          "selector": "#datatable_contratos_clientes_processing",
+          "type": "generic",
+          "description": "Indicador de processamento — aguardar desaparecer após clicar Filtrar"
+        },
+        "estadoVazio": {
+          "selector": "td.dataTables_empty",
+          "type": "cell",
+          "description": "Texto exato: 'Nenhum resultado encontrado!'"
+        },
+        "linhaAgrupamento": {
+          "selector": "tr.dtrg-group",
+          "type": "row",
+          "description": "Linha de row group — ASSÍNCRONA: aguardar .first().toBeVisible() antes de .count(). Formato do texto: 'RAZÃO SOCIAL (CNPJ)'"
+        },
+        "paginacao": {
+          "selector": "#datatable_contratos_clientes_paginate",
+          "type": "generic"
+        },
+        "btnAnterior": {
+          "selector": "#datatable_contratos_clientes_paginate .previous",
+          "type": "button"
+        },
+        "btnProxima": {
+          "selector": "#datatable_contratos_clientes_paginate .next",
+          "type": "button"
+        },
+        "btnExportarXls": {
+          "selector": ".dt-button.buttons-excel",
+          "type": "button",
+          "description": "NÃO usar .dt-button genérico — há 5 botões DataTables"
+        },
+        "btnExportarCsv": {
+          "selector": ".dt-button.buttons-csv",
+          "type": "button"
+        },
+        "btnAlterarColunas": {
+          "selector": ".dt-button.buttons-colvis",
+          "type": "button",
+          "description": "Botão 'Altere as colunas'"
+        },
+        "mensagemAcessoNegado": {
+          "selector": "main",
+          "type": "generic",
+          "description": "Quando sem permissão: main contém 'não possui autorização'. Texto completo: 'Você não possui autorização para executar esta ação, verifique com o administrador do sistema para que libere esta funcionalidade para uso.'"
+        }
+      },
+      "uiPatterns": [
+        "Select2: usar page.evaluate(() => $('...').val(v).trigger('change')) + waitForFunction para confirmar commit antes de clicar Filtrar",
+        "Botão Filtrar: 'Filtrar...' com reticências — usar id #btn_contratos_clientes_filtrar",
+        "Estado vazio: td.dataTables_empty com texto exato 'Nenhum resultado encontrado!'",
+        "Row group: tr.dtrg-group renderizado após DOM — aguardar .first().toBeVisible()",
+        "Paginação: botão Próxima pode estar disabled se todos cabem em 1 página",
+        "Breadcrumb: 'Relatórios / Contratos por Cliente' (bug de breadcrumb corrigido em 2026-04-10)"
+      ],
+      "antiPatterns": [
+        "NÃO usar selectOption() nos filtros Select2 — não funciona",
+        "NÃO usar locator('h6') sem .filter() — 6+ elementos h6 na página",
+        "NÃO usar .dt-button sem classe específica — há 5 botões DataTables na barra"
+      ]
+    },
+    "perfil-editar": {
+      "url": "/assistencia/usuario_perfil/editar.php?id={id}",
+      "selectors": {
+        "overlayCarregamento": {
+          "selector": "#preloading",
+          "type": "overlay",
+          "description": "Aguardar state: 'hidden' antes de qualquer interação pós-navegação"
+        },
+        "checkboxPermissao": {
+          "selector": "#edit_profile_view_report_contractxclients",
+          "type": "checkbox",
+          "description": "Input estilizado — NÃO clicar diretamente. Name: edit_profile_view_report_contractxclients"
+        },
+        "labelCheckboxPermissao": {
+          "selector": "label[for='edit_profile_view_report_contractxclients']",
+          "type": "label",
+          "description": "USAR ESTE para interagir com o checkbox estilizado"
+        },
+        "btnSalvar": {
+          "selector": "#bt_editar_perfil",
+          "type": "button",
+          "description": "disabled=true para perfil ADMIN (id=0). Para não-ADMIN: enabled por padrão."
+        }
+      },
+      "uiPatterns": [
+        "Perfil ADMIN (id=0): #bt_editar_perfil disabled=true permanentemente",
+        "Perfil AGENTS (id=284): checkbox checked=true por padrão (tem permissão)",
+        "Após salvar: OBRIGATÓRIO page.reload() para sessão PHP refletir mudança (H013)",
+        "Checkbox NÃO está disabled no DOM do perfil ADMIN — verificar btn Salvar, não o input"
+      ],
+      "antiPatterns": [
+        "NÃO clicar em #edit_profile_view_report_contractxclients diretamente — é estilizado",
+        "NÃO verificar input[disabled] para ADMIN — o input não está disabled, o botão sim",
+        "NÃO omitir page.reload() após salvar — sessão PHP mantém cache"
+      ],
+      "knownPerfis": {
+        "ADMIN": { "id": 0, "url": "/assistencia/usuario_perfil/editar.php?id=0" },
+        "AGENTS": { "id": 284, "url": "/assistencia/usuario_perfil/editar.php?id=284" }
+      }
+    },
+    "perfil-lista": {
+      "url": "/assistencia/usuario_perfil/index.php",
+      "selectors": {
+        "linhaAdmin": {
+          "selector": "tbody tr:has(td:first-child:text('ADMIN'))",
+          "type": "row"
+        },
+        "linhaAgents": {
+          "selector": "tbody tr:has(td:first-child:text('AGENTS'))",
+          "type": "row"
+        }
+      },
+      "uiPatterns": [
+        "Clicar na linha navega diretamente para editar.php?id={id} — não há botão separado"
+      ]
+    }
+  },
+  "testData": {
+    "clienteComContratos": { "id": "4143", "nome": "LUCASCLI", "cnpj": "46.902.443/0001-79" },
+    "clienteSemContratos": { "id": "4481", "nome": "ALFANUMERICO" },
+    "contratoParaBuscaExata": "AUTO_CLI_COD",
+    "contratoVencido": { "nome": "CONTRATO VENCIDO", "cliente": "AGENTECLI", "id": "4483", "criadoEm": "2026-04-10" },
+    "contratoBoundaryVigencia": { "nome": "CONTRATO FINAL DATA ATUAL", "cliente": "AGENTECLI", "vigencia_ate": "2026-04-10", "aviso": "A partir de 2026-04-11 passa a ser Vencido — atualizar dado ou criar dinâmico" },
+    "contratoInativo": { "nome": "CONTRATO INATIVO", "cliente": "AGENTECLI", "status": "Inativo", "criadoEm": "2026-04-10" }
+  }
+}

@@ -1,0 +1,492 @@
+{
+  "feature": "faturamento-de-lotes-por-cnpj",
+  "exploredAt": "2026-04-16T12:16:00Z",
+  "exploredBy": "agent1",
+  "notes": "Mapeamento inicial via Playwright MCP. Credenciais de portal Prestador não disponíveis — telas do Prestador (CT004, CT007) requerem mapeamento separado quando credenciais forem providas.",
+  "knownIssues": [
+    "Label do campo CNPJ no formulário de criação de lote ainda exibe 'Filial:' (não 'CNPJ Prestador:') — CT009.4 verifica se o rename foi aplicado",
+    "Campo CNPJ no formulário de lote (Assistência) é um combobox disabled quando não há prestador selecionado — deve ser selecionado via segundo combobox após escolher o prestador",
+    "Select2/combobox duplo nos campos Prestador e CNPJ: primeiro combobox é hidden/disabled, segundo é o input visível — usar o segundo para interação",
+    "Modal de edição de CNPJ: botão 'Excluir' está disabled para o CNPJ matriz — verificar atributo disabled antes de clicar",
+    "Botão 'Close' do modal usa generic com aria-label — usar getByRole('generic', { name: 'Close' }) com cautela; alternativa: tecla Escape"
+  ],
+  "screens": {
+    "login-assistencia": {
+      "url": "/assistencia/login/",
+      "selectors": {
+        "campoCnpj": {
+          "selector": "getByRole('textbox', { name: 'CPF/CNPJ' })",
+          "type": "input",
+          "description": "Campo CNPJ/CPF da empresa no login"
+        },
+        "campoUsuario": {
+          "selector": "getByRole('textbox', { name: 'Usuário' })",
+          "type": "input",
+          "description": "Campo usuário"
+        },
+        "campoSenha": {
+          "selector": "getByRole('textbox', { name: 'Senha' })",
+          "type": "input",
+          "description": "Campo senha"
+        },
+        "btnLogar": {
+          "selector": "getByRole('button', { name: 'Logar como Assistência' })",
+          "type": "button",
+          "description": "Botão de submit do login"
+        }
+      },
+      "uiPatterns": [
+        "Login bem-sucedido redireciona para /assistencia/dashboard/",
+        "Erro de credenciais exibe mensagem inline (observar alerta/toast)"
+      ]
+    },
+    "login-prestador": {
+      "url": "/prestador/login/",
+      "selectors": {
+        "campoCodigo": {
+          "selector": "getByRole('textbox', { name: 'Código do prestador ou CPF/CNPJ' })",
+          "type": "input",
+          "description": "Campo código/CNPJ do prestador"
+        },
+        "campoUsuario": {
+          "selector": "getByRole('textbox', { name: 'Usuário' })",
+          "type": "input",
+          "description": "Campo usuário"
+        },
+        "campoSenha": {
+          "selector": "getByRole('textbox', { name: 'Senha' })",
+          "type": "input",
+          "description": "Campo senha"
+        },
+        "btnLogar": {
+          "selector": "getByRole('button', { name: 'Logar como Prestador' })",
+          "type": "button",
+          "description": "Botão de submit do login do prestador"
+        }
+      },
+      "uiPatterns": [
+        "Login bem-sucedido redireciona para /prestador/dashboard/ (ou equivalente)"
+      ]
+    },
+    "prestadores-listagem": {
+      "url": "/assistencia/rede/prestadores/",
+      "selectors": {
+        "breadcrumb": {
+          "selector": "getByRole('heading', { level: 2 })",
+          "type": "heading",
+          "description": "Breadcrumb — texto esperado: 'Rede / Prestadores'"
+        },
+        "gridPrestadores": {
+          "selector": "getByRole('grid')",
+          "type": "grid",
+          "description": "DataTable de prestadores"
+        },
+        "linhaPrestadorQA": {
+          "selector": "getByRole('row', { name: /PRESTADOR QA/ })",
+          "type": "row",
+          "description": "Linha do PRESTADOR QA (id: 5817) na listagem"
+        },
+        "btnCadastrarPrestador": {
+          "selector": "getByRole('button', { name: 'Cadastrar Prestador' })",
+          "type": "button",
+          "description": "Botão para cadastrar novo prestador"
+        },
+        "statusResultados": {
+          "selector": "getByRole('status')",
+          "type": "status",
+          "description": "Texto 'Mostrando X de Y resultado(s)'"
+        }
+      },
+      "uiPatterns": [
+        "Clicar na linha do prestador navega para /assistencia/rede/prestadores/editar.php?id={id}",
+        "DataTable usa paginação — aguardar status de resultados para confirmar carregamento"
+      ],
+      "antiPatterns": [
+        "Evitar nth-child para selecionar linha do prestador — usar getByRole('row', { name: /PRESTADOR QA/ })"
+      ]
+    },
+    "prestador-tabs": {
+      "url": "/assistencia/rede/prestadores/editar.php?id=5817",
+      "selectors": {
+        "breadcrumb": {
+          "selector": "getByRole('heading', { level: 2 })",
+          "type": "heading",
+          "description": "Breadcrumb — texto: 'Rede / Prestadores / Editar'"
+        },
+        "tabCnpjs": {
+          "selector": "getByRole('link', { name: 'CNPJs' })",
+          "type": "link",
+          "description": "Aba CNPJs — href: cnpjs.php?id=5817"
+        },
+        "tabServicos": {
+          "selector": "getByRole('link', { name: 'Serviços' })",
+          "type": "link",
+          "description": "Aba Serviços — href: servicos.php?id=5817"
+        },
+        "tabVisualizar": {
+          "selector": "getByRole('link', { name: 'Visualizar' })",
+          "type": "link",
+          "description": "Aba Visualizar — href: index.php"
+        },
+        "tabEditar": {
+          "selector": "getByRole('link', { name: 'Editar' })",
+          "type": "link",
+          "description": "Aba Editar — href: editar.php?id=5817"
+        },
+        "tabTabelaValores": {
+          "selector": "getByRole('link', { name: 'Tabela de Valores' })",
+          "type": "link",
+          "description": "Aba Tabela de Valores — href: tabela.php?id=5817"
+        },
+        "btnExcluir": {
+          "selector": "getByRole('button', { name: 'Excluir' })",
+          "type": "button",
+          "description": "Botão Excluir no rodapé da tela de edição"
+        }
+      },
+      "uiPatterns": [
+        "Abas de navegação dentro do cadastro do prestador — clicar na aba navega para URL específica (não SPA, recarrega a página)",
+        "Timeout pode ocorrer ao clicar na aba via browser_click — usar navigate() diretamente para a URL da aba quando necessário"
+      ],
+      "antiPatterns": [
+        "Clicar em aba por .c-tabs__link pode causar timeout (observado durante exploração) — preferir page.goto() com a URL direta da aba"
+      ]
+    },
+    "prestador-aba-cnpjs": {
+      "url": "/assistencia/rede/prestadores/cnpjs.php?id=5817",
+      "selectors": {
+        "breadcrumb": {
+          "selector": "getByRole('heading', { level: 2 })",
+          "type": "heading",
+          "description": "Breadcrumb — texto: 'Rede / Prestadores / CNPJs'"
+        },
+        "tituloPagina": {
+          "selector": "getByRole('heading', { level: 6, name: 'CNPJs' })",
+          "type": "heading",
+          "description": "Título interno da seção"
+        },
+        "btnCadastrarCnpj": {
+          "selector": "getByRole('button', { name: 'Cadastrar CNPJ' })",
+          "type": "button",
+          "description": "Botão para adicionar novo CNPJ ao prestador"
+        },
+        "gridCnpjs": {
+          "selector": "getByRole('grid')",
+          "type": "grid",
+          "description": "DataTable com CNPJs do prestador. Colunas: CNPJ, Nome Fantasia, Razão Social, Cidade, Estado, Status"
+        },
+        "colunaCnpj": {
+          "selector": "getByRole('columnheader', { name: 'CNPJ' })",
+          "type": "columnheader",
+          "description": "Cabeçalho da coluna CNPJ"
+        },
+        "colunaStatus": {
+          "selector": "getByRole('columnheader', { name: 'Status' })",
+          "type": "columnheader",
+          "description": "Cabeçalho da coluna Status"
+        },
+        "linhaMatriz": {
+          "selector": "getByRole('row', { name: /57.037.036\\/0001-67.*MATRIZ/ })",
+          "type": "row",
+          "description": "Linha do CNPJ matriz do PRESTADOR QA"
+        },
+        "indicadorMatriz": {
+          "selector": "getByRole('gridcell', { name: /MATRIZ/ })",
+          "type": "gridcell",
+          "description": "Célula que contém o número CNPJ + badge 'MATRIZ'. Confirma presença de indicação visual do CNPJ matriz"
+        },
+        "statusResultados": {
+          "selector": "getByRole('status')",
+          "type": "status",
+          "description": "Texto 'Mostrando X de Y resultado(s)'"
+        }
+      },
+      "uiPatterns": [
+        "Clicar na linha do CNPJ abre modal de edição inline (não navega)",
+        "Badge 'MATRIZ' aparece dentro da gridcell da coluna CNPJ, ao lado do número",
+        "CNPJ status ATIVO/INATIVO é exibido em badge colorido na coluna Status"
+      ],
+      "antiPatterns": [
+        "Evitar selecionar linha por índice nth-child — a ordem pode mudar com adição de CNPJs"
+      ]
+    },
+    "modal-editar-cnpj": {
+      "url": "/assistencia/rede/prestadores/cnpjs.php?id=5817",
+      "selectors": {
+        "modal": {
+          "selector": "getByRole('dialog', { name: /Editar CNPJ/ })",
+          "type": "dialog",
+          "description": "Modal de edição de CNPJ — abre ao clicar em uma linha do grid"
+        },
+        "tituloModal": {
+          "selector": "getByRole('heading', { name: 'Editar CNPJ' })",
+          "type": "heading",
+          "description": "Título do modal"
+        },
+        "campoCnpj": {
+          "selector": "getByRole('textbox', { name: 'CNPJ:' })",
+          "type": "input",
+          "description": "Campo CNPJ — SEMPRE disabled. Não permite edição independentemente do usuário"
+        },
+        "campoRazaoSocial": {
+          "selector": "getByRole('textbox', { name: 'Razão Social:' })",
+          "type": "input",
+          "description": "Campo Razão Social — editável"
+        },
+        "campoNomeFantasia": {
+          "selector": "getByRole('textbox', { name: 'Nome Fantasia:' })",
+          "type": "input",
+          "description": "Campo Nome Fantasia — editável"
+        },
+        "campoCep": {
+          "selector": "getByRole('textbox', { name: 'CEP:' })",
+          "type": "input",
+          "description": "Campo CEP"
+        },
+        "campoLogradouro": {
+          "selector": "getByRole('textbox', { name: 'Logradouro:' })",
+          "type": "input",
+          "description": "Campo Logradouro"
+        },
+        "campoBairro": {
+          "selector": "getByRole('textbox', { name: 'Bairro:' })",
+          "type": "input",
+          "description": "Campo Bairro"
+        },
+        "selectCidade": {
+          "selector": "getByRole('combobox').filter({ hasText: /SP/ })",
+          "type": "combobox",
+          "description": "Select de Cidade/Estado — usar Select2 API se necessário"
+        },
+        "toggleStatus": {
+          "selector": "getByText('Status').locator('..').getByRole('generic')",
+          "type": "toggle",
+          "description": "Toggle de status ATIVO/INATIVO — verificar estrutura exata ao implementar"
+        },
+        "btnExcluir": {
+          "selector": "getByRole('dialog', { name: /Editar CNPJ/ }).getByRole('button', { name: 'Excluir' })",
+          "type": "button",
+          "description": "Botão Excluir — disabled para CNPJ matriz. Verificar .isDisabled() antes de clicar"
+        },
+        "btnSalvar": {
+          "selector": "getByRole('dialog', { name: /Editar CNPJ/ }).getByRole('button', { name: 'Salvar' })",
+          "type": "button",
+          "description": "Botão Salvar — submete o formulário"
+        },
+        "btnFechar": {
+          "selector": "getByRole('dialog', { name: /Editar CNPJ/ }).getByRole('generic', { name: 'Close' })",
+          "type": "button",
+          "description": "Botão × fechar modal. Alternativa: pressionar Escape"
+        }
+      },
+      "uiPatterns": [
+        "Campo CNPJ sempre disabled — mesmo para usuários com permissão editar_prestadores",
+        "Botão Excluir disabled para CNPJ matriz — verificar atributo antes de interagir",
+        "Modal fecha após Salvar bem-sucedido — aguardar desaparecimento do dialog",
+        "Feedback de sucesso: toast exibido após salvar (observar área de alertas)"
+      ],
+      "antiPatterns": [
+        "Não usar getByRole('textbox', { name: 'CNPJ:' }) para verificar campo editável — o campo é sempre disabled",
+        "Não usar getByRole('button', { name: 'Excluir' }) sem escopo no dialog — há múltiplos botões Excluir na página"
+      ]
+    },
+    "prestador-aba-servicos": {
+      "url": "/assistencia/rede/prestadores/servicos.php?id=5817",
+      "selectors": {
+        "breadcrumb": {
+          "selector": "getByRole('heading', { level: 2 })",
+          "type": "heading",
+          "description": "Breadcrumb — texto: 'Rede / Prestadores / Serviços'"
+        },
+        "tituloPagina": {
+          "selector": "getByRole('heading', { level: 6, name: 'Serviços' })",
+          "type": "heading",
+          "description": "Título interno: 'Serviços'"
+        },
+        "descricaoPagina": {
+          "selector": "getByText('Vincule tipos de serviço aos CNPJs deste prestador.')",
+          "type": "paragraph",
+          "description": "Subtítulo da seção Serviços"
+        },
+        "btnCadastrarServico": {
+          "selector": "getByRole('button', { name: 'Cadastrar Serviço' })",
+          "type": "button",
+          "description": "Botão para adicionar novo vínculo tipo de serviço + CNPJ"
+        },
+        "gridServicos": {
+          "selector": "getByRole('grid')",
+          "type": "grid",
+          "description": "DataTable de vínculos. Colunas: Nome Fantasia, CNPJ, Tipo de Serviço"
+        },
+        "colunaNomeFantasia": {
+          "selector": "getByRole('columnheader', { name: 'Nome Fantasia' })",
+          "type": "columnheader",
+          "description": "Coluna Nome Fantasia"
+        },
+        "colunaCnpj": {
+          "selector": "getByRole('columnheader', { name: 'CNPJ' })",
+          "type": "columnheader",
+          "description": "Coluna CNPJ"
+        },
+        "colunaTipoServico": {
+          "selector": "getByRole('columnheader', { name: 'Tipo de Serviço' })",
+          "type": "columnheader",
+          "description": "Coluna Tipo de Serviço"
+        },
+        "linhaVinculoMatriz": {
+          "selector": "getByRole('row', { name: /57\\.037\\.036\\/0001-67/ })",
+          "type": "row",
+          "description": "Linha do vínculo do CNPJ matriz"
+        },
+        "statusResultados": {
+          "selector": "getByRole('status')",
+          "type": "status",
+          "description": "Texto 'Mostrando X de Y resultado(s)'"
+        }
+      },
+      "uiPatterns": [
+        "Clicar na linha abre modal 'Editar Serviço por CNPJ'",
+        "A coluna Tipo de Serviço exibe lista separada por vírgula de todos os tipos vinculados ao CNPJ"
+      ]
+    },
+    "modal-editar-servico": {
+      "url": "/assistencia/rede/prestadores/servicos.php?id=5817",
+      "selectors": {
+        "modal": {
+          "selector": "getByRole('dialog', { name: /Editar Serviço por CNPJ/ })",
+          "type": "dialog",
+          "description": "Modal de edição de vínculo serviço-CNPJ"
+        },
+        "tituloModal": {
+          "selector": "getByRole('heading', { name: 'Editar Serviço por CNPJ' })",
+          "type": "heading",
+          "description": "Título do modal"
+        },
+        "selectCnpj": {
+          "selector": "getByRole('dialog', { name: /Editar Serviço por CNPJ/ }).getByRole('combobox').last()",
+          "type": "combobox",
+          "description": "Select de CNPJ — exibe apenas CNPJs ativos do prestador. Padrão Select2 com dois combobox"
+        },
+        "listboxTipoServico": {
+          "selector": "getByRole('dialog', { name: /Editar Serviço por CNPJ/ }).getByRole('listbox')",
+          "type": "listbox",
+          "description": "Lista multiselect de tipos de serviço disponíveis — exibe apenas tipos da tabela padrão da assistência não vinculados a outros CNPJs ativos"
+        },
+        "btnExcluir": {
+          "selector": "getByRole('dialog', { name: /Editar Serviço por CNPJ/ }).getByRole('button', { name: 'Excluir' })",
+          "type": "button",
+          "description": "Botão Excluir — habilitado (diferente do modal de CNPJ matriz)"
+        },
+        "btnSalvar": {
+          "selector": "getByRole('dialog', { name: /Editar Serviço por CNPJ/ }).getByRole('button', { name: 'Salvar' })",
+          "type": "button",
+          "description": "Botão Salvar"
+        },
+        "btnFechar": {
+          "selector": "getByRole('dialog', { name: /Editar Serviço por CNPJ/ }).getByRole('generic', { name: 'Close' })",
+          "type": "button",
+          "description": "Botão × fechar modal"
+        }
+      },
+      "uiPatterns": [
+        "O select de CNPJ exibe apenas CNPJs ativos — CNPJs inativos não aparecem",
+        "O listbox de tipos de serviço filtra preventivamente tipos já vinculados a outros CNPJs ativos",
+        "Após excluir vínculo, o serviço é marcado como inativo na aba Tabela de Valores (não removido)"
+      ]
+    },
+    "faturamento-criar-lote-assistencia": {
+      "url": "/assistencia/faturamento/prestador/cadastrar.php",
+      "selectors": {
+        "breadcrumb": {
+          "selector": "getByRole('heading', { level: 2 })",
+          "type": "heading",
+          "description": "Breadcrumb — texto: 'Faturamento / Por Prestador / Cadastrar'"
+        },
+        "btnCriarLote": {
+          "selector": "getByRole('button', { name: 'Criar Lote' })",
+          "type": "button",
+          "description": "Botão que expande o formulário de criação de lote"
+        },
+        "labelCampoCnpj": {
+          "selector": "getByText('Filial:')",
+          "type": "label",
+          "description": "⚠️ Label do campo CNPJ ainda exibe 'Filial:' — CT009.4 verifica se deveria ser 'CNPJ Prestador:'"
+        },
+        "campoCnpjPrestador": {
+          "selector": "page.locator('label').filter({ hasText: 'Filial:' }).locator('..').getByRole('combobox').last()",
+          "type": "combobox",
+          "description": "Select de CNPJ do prestador — carrega dinamicamente após seleção do prestador. Disabled quando só há 1 CNPJ disponível"
+        },
+        "campoPrestador": {
+          "selector": "page.locator('label').filter({ hasText: 'Prestador:' }).locator('..').getByRole('combobox').last()",
+          "type": "combobox",
+          "description": "Select de Prestador — Select2 com dois combobox"
+        },
+        "campoCliente": {
+          "selector": "page.locator('label').filter({ hasText: 'Cliente:' }).locator('..').getByRole('combobox').last()",
+          "type": "combobox",
+          "description": "Select de Cliente — Select2 com dois combobox"
+        },
+        "campoNumero": {
+          "selector": "getByRole('textbox', { name: 'Número:' })",
+          "type": "input",
+          "description": "Campo número do lote"
+        },
+        "campoSerie": {
+          "selector": "getByRole('textbox', { name: 'Série:' })",
+          "type": "input",
+          "description": "Campo série do lote"
+        },
+        "campoDataEmissao": {
+          "selector": "getByRole('textbox', { name: 'Data de Emissão:' })",
+          "type": "input",
+          "description": "Campo data de emissão"
+        },
+        "campoMesReferente": {
+          "selector": "getByRole('textbox', { name: 'Mês Referente:' })",
+          "type": "input",
+          "description": "Campo mês de referência"
+        },
+        "alertaObrigatorio": {
+          "selector": "getByRole('alert')",
+          "type": "alert",
+          "description": "Alerta de validação — exibido quando campos obrigatórios não preenchidos. Ex: 'O prestador é obrigatório.'"
+        }
+      },
+      "uiPatterns": [
+        "Botão 'Criar Lote' expande/exibe o formulário — não navega",
+        "Campo CNPJ (label 'Filial:') é disabled até que o prestador seja selecionado",
+        "Quando o prestador tem apenas 1 CNPJ, o campo fica pré-selecionado e disabled — submissão ainda envia o valor",
+        "Alerta de validação aparece no canto superior direito da página ao tentar salvar com campos vazios",
+        "Após salvar: modal de sugestão automática de acionamentos é exibido se houver acionamentos elegíveis (RN-FAT-003)"
+      ],
+      "antiPatterns": [
+        "Não usar .nth(0) para selecionar o combobox de CNPJ — há dois combobox por campo Select2 (hidden + visível)",
+        "Não clicar no botão Salvar sem aguardar carregamento do select de CNPJ após seleção do prestador"
+      ]
+    },
+    "faturamento-listagem-assistencia": {
+      "url": "/assistencia/faturamento/prestador/",
+      "selectors": {
+        "breadcrumb": {
+          "selector": "getByRole('heading', { level: 2 })",
+          "type": "heading",
+          "description": "Breadcrumb — texto: 'Faturamento / Por Prestador / Visualizar'"
+        },
+        "gridLotes": {
+          "selector": "getByRole('grid')",
+          "type": "grid",
+          "description": "DataTable de lotes existentes"
+        },
+        "statusResultados": {
+          "selector": "getByRole('status')",
+          "type": "status",
+          "description": "Texto 'Mostrando X de Y resultado(s)'"
+        }
+      },
+      "uiPatterns": [
+        "Página de listagem — botão 'Criar Lote' está disponível dentro de cadastrar.php, não nesta página"
+      ]
+    }
+  }
+}

@@ -1,0 +1,240 @@
+{
+  "feature": "melhorias-no-relatorio-de-conectividade",
+  "portal": "Assistência",
+  "url_base": "/assistencia/relatorios/provider_connectivity/",
+  "lastUpdated": "2026-04-10",
+  "explorado_com": "Playwright MCP — sessão autenticada agent1",
+
+  "pages": {
+    "login": {
+      "url": "/assistencia/login/",
+      "elements": {
+        "cnpj_input": {
+          "playwright": "page.getByRole('textbox', { name: 'CPF/CNPJ' })",
+          "note": "Campo de CPF/CNPJ — sem id/name estável observado; usar role+name"
+        },
+        "user_input": {
+          "playwright": "page.getByRole('textbox', { name: 'Usuário' })"
+        },
+        "password_input": {
+          "playwright": "page.getByRole('textbox', { name: 'Senha' })"
+        },
+        "login_button": {
+          "playwright": "page.getByRole('button', { name: 'Logar como Assistência' })"
+        }
+      }
+    },
+
+    "relatorio_conectividade": {
+      "url": "/assistencia/relatorios/provider_connectivity/",
+
+      "navigation": {
+        "menu_relatorios": {
+          "description": "Item 'Relatórios' na sidebar — expandir para acessar submenu",
+          "playwright": "page.locator('text=Relatórios').nth(0)"
+        },
+        "link_conectividade_prestadores": {
+          "description": "Link dentro do submenu Relatórios",
+          "url": "/assistencia/relatorios/provider_connectivity/",
+          "playwright": "page.getByRole('link', { name: 'Conectividade de Prestadores' })"
+        },
+        "breadcrumb": {
+          "description": "Título/breadcrumb da página",
+          "playwright": "page.getByRole('heading', { name: /Conectividade de Prestadores/ })"
+        }
+      },
+
+      "filters": {
+        "date_from": {
+          "id": "filter_date_from",
+          "name": "filter_date_from",
+          "type": "text",
+          "css_class": "c-input mask_data",
+          "format": "DD/MM/YYYY",
+          "playwright": "page.locator('#filter_date_from')"
+        },
+        "date_to": {
+          "id": "filter_date_to",
+          "name": "filter_date_to",
+          "type": "text",
+          "css_class": "c-input mask_data",
+          "format": "DD/MM/YYYY",
+          "playwright": "page.locator('#filter_date_to')"
+        },
+        "prestador": {
+          "id": "filter_prestador",
+          "name": "rel_atendimento_id_prestador",
+          "type": "select (Select2)",
+          "css_class": "c-select has-search select2-hidden-accessible",
+          "playwright": "page.locator('#filter_prestador')",
+          "note": "Select2 — usar page.selectOption('#filter_prestador', value) funciona diretamente"
+        },
+        "conexao": {
+          "id": "filtro_conexao",
+          "name": "filtro_conexao",
+          "type": "select (Select2)",
+          "values": { "": "Todos", "ONLINE": "ONLINE", "OFFLINE": "OFFLINE" },
+          "playwright": "page.locator('#filtro_conexao')"
+        },
+        "cidade": {
+          "id": "filtro_cidade",
+          "name": "filtro_cidade",
+          "type": "select (Select2 com busca)",
+          "playwright": "page.locator('#filtro_cidade')"
+        },
+        "estado": {
+          "id": "filtro_estado",
+          "name": "filtro_estado",
+          "type": "select (Select2 com busca)",
+          "playwright": "page.locator('#filtro_estado')"
+        },
+        "categoria_servico": {
+          "id": "filtro_categoria_servico",
+          "name": "filtro_categoria_servico",
+          "type": "select (Select2 com busca)",
+          "playwright": "page.locator('#filtro_categoria_servico')",
+          "note": "Ao mudar, carrega automaticamente os segmentos e tipos via AJAX"
+        },
+        "segmento_servico": {
+          "id": "filtro_segmento_servico",
+          "name": "filtro_segmento_servico",
+          "type": "select (Select2 com busca)",
+          "playwright": "page.locator('#filtro_segmento_servico')",
+          "note": "Dependente de filtro_categoria_servico — populado via AJAX"
+        },
+        "tipo_servico": {
+          "id": "filtro_tipo_servico",
+          "name": "filtro_tipo_servico",
+          "type": "select (Select2 com busca)",
+          "playwright": "page.locator('#filtro_tipo_servico')",
+          "note": "Dependente de filtro_segmento_servico — populado via AJAX"
+        },
+        "config_horario": {
+          "id": "filter_config",
+          "name": "filter_config",
+          "type": "select (Select2)",
+          "label_ui": "Prestadores com horário configurado:",
+          "css_class": "c-select select2-hidden-accessible",
+          "values": {
+            "": "(vazio) — comportamento Todos",
+            "with": "APENAS COM HORÁRIO CONFIGURADO",
+            "without": "APENAS SEM HORÁRIO CONFIGURADO"
+          },
+          "playwright": "page.locator('#filter_config')",
+          "note": "FILTRO NOVO desta feature — parâmetro enviado como config= no request"
+        }
+      },
+
+      "buttons": {
+        "limpar_filtros": {
+          "id": "btn_provider_connectivity_clean_filters",
+          "text_visible": "(apenas ícone — sem label de texto)",
+          "onclick": "resetFilters()",
+          "playwright": "page.locator('#btn_provider_connectivity_clean_filters')"
+        },
+        "filtrar": {
+          "id": "btn_provider_connectivity_filter",
+          "text_visible": "Filtrar...",
+          "onclick": "filter()",
+          "playwright": "page.locator('#btn_provider_connectivity_filter')"
+        }
+      },
+
+      "datatable": {
+        "table": {
+          "id": "datatable_provider_connectivity",
+          "css_class": "c-table datatable2 nowrap c-table--zebra dataTable no-footer",
+          "playwright": "page.locator('#datatable_provider_connectivity')"
+        },
+        "header": {
+          "playwright": "page.locator('#datatable_provider_connectivity thead tr')"
+        },
+        "columns": {
+          "nome":        { "index": 0, "playwright": "page.locator('#datatable_provider_connectivity thead th').nth(0)" },
+          "cnpj":        { "index": 1, "playwright": "page.locator('#datatable_provider_connectivity thead th').nth(1)" },
+          "status":      { "index": 2, "playwright": "page.locator('#datatable_provider_connectivity thead th').nth(2)" },
+          "conectividade": { "index": 3, "playwright": "page.locator('#datatable_provider_connectivity thead th').nth(3)" },
+          "pct_conexao": { "index": 4, "playwright": "page.locator('#datatable_provider_connectivity thead th').nth(4)" }
+        },
+        "body": {
+          "all_rows":  "page.locator('#datatable_provider_connectivity tbody tr')",
+          "first_row": "page.locator('#datatable_provider_connectivity tbody tr').first()",
+          "empty_row": "page.locator('#datatable_provider_connectivity tbody tr td.dataTables_empty')"
+        },
+        "export_buttons": {
+          "xls":   "page.locator('button.buttons-excel')",
+          "csv":   "page.locator('button.buttons-csv')",
+          "print": "page.locator('button.buttons-print')"
+        }
+      },
+
+      "chart": {
+        "canvas": {
+          "id": "graph_provider_connectivity",
+          "tag": "canvas",
+          "playwright": "page.locator('#graph_provider_connectivity')"
+        },
+        "container": {
+          "id": "div_grafico",
+          "playwright": "page.locator('#div_grafico')"
+        }
+      },
+
+      "tooltip": {
+        "status": "⚠️ NÃO OBSERVÁVEL — datatable retorna 400 Bad Request; tooltip é renderizado server-side no HTML da linha",
+        "expected_icon_in_row": {
+          "description": "Ícone ao lado do nome do prestador com horário configurado",
+          "suggested_playwright": "page.locator('#datatable_provider_connectivity tbody tr').first().locator('[title], [data-tooltip], i.fa-info-circle, i.fa-clock, i.fa-question-circle').first()",
+          "note": "Seletor exato DEVE ser confirmado após correção do bug HTTP 400 e criação dos Prestadores A e B"
+        },
+        "expected_content": {
+          "description": "Conteúdo do tooltip com horários por dia da semana",
+          "note": "Verificar após correção — esperado: lista de dias com horário ou 'Não configurado'"
+        }
+      }
+    }
+  },
+
+  "endpoints": {
+    "datatable": {
+      "url_pattern": "__acoes.php?datatable_provider_connectivity",
+      "method": "GET",
+      "http_status_esperado": 200,
+      "params_enviados": {
+        "date_from": "DD/MM/YYYY",
+        "date_to": "DD/MM/YYYY",
+        "provider": "id do prestador | vazio",
+        "category": "id da categoria | vazio",
+        "segment": "id do segmento | vazio",
+        "service": "id do tipo de serviço | vazio",
+        "state": "sigla do estado | vazio",
+        "city": "id da cidade | vazio",
+        "conectivity": "ONLINE | OFFLINE | vazio",
+        "config": "with | without | vazio"
+      }
+    },
+    "graph": {
+      "url_pattern": "__acoes.php?graph_provider_connectivity",
+      "method": "GET",
+      "http_status_esperado": 200,
+      "params_enviados": "idênticos ao datatable"
+    }
+  },
+
+  "select2_interaction_guide": {
+    "metodo_recomendado": "page.selectOption('#filter_config', 'with') — funciona diretamente mesmo com Select2",
+    "metodo_ui_alternativo": [
+      "await page.locator('#filter_config + .select2 .select2-selection').click()",
+      "await page.locator('.select2-results__option', { hasText: 'APENAS COM HORÁRIO CONFIGURADO' }).click()"
+    ],
+    "nota": "Usar selectOption() é mais robusto que clicar no Select2 visualmente"
+  },
+
+  "alert_dialogs": {
+    "datatables_ajax_error": {
+      "trigger": "Carregamento da página sem dados no período selecionado ou falha pontual de rede",
+      "message": "DataTables warning: table id=datatable_provider_connectivity - Ajax error. For more information about this error, please see http://datatables.net/tn/7",
+      "handler": "page.on('dialog', d => d.accept())"
+    }
+  }
+}
