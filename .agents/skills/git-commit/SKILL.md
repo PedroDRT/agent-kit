@@ -51,7 +51,31 @@ BREAKING CHANGE: `extends` key behavior changed
 
 ## Workflow
 
-### 1. Analyze Diff
+### 1. Read Branch Name and Extract Ticket
+
+```bash
+git rev-parse --abbrev-ref HEAD
+```
+
+Parse the branch name to extract the commit **type** and **ticket ID**:
+
+- Pattern: `<type>/CU-<ticketId>[/<rest>]`
+- Examples:
+  - `feat/CU-86ah9du26` → type=`feat`, ticket=`CU-86ah9du26`
+  - `fix/CU-86ah9du26/some-description` → type=`fix`, ticket=`CU-86ah9du26`
+  - `refactor/CU-86ah9du26` → type=`refactor`, ticket=`CU-86ah9du26`
+
+If the branch matches this pattern, the commit message **must** follow this format:
+
+```
+<type>: <TICKET> - <description>
+```
+
+Example: `feat: CU-86ah9du26 - add step status panel to client view`
+
+If the branch does **not** match the pattern, fall back to the standard Conventional Commits format.
+
+### 2. Analyze Diff
 
 ```bash
 # If files are staged, use staged diff
@@ -64,7 +88,7 @@ git diff
 git status --porcelain
 ```
 
-### 2. Stage Files (if needed)
+### 3. Stage Files (if needed)
 
 If nothing is staged or you want to group changes differently:
 
@@ -82,15 +106,21 @@ git add -p
 
 **Never commit secrets** (.env, credentials.json, private keys).
 
-### 3. Generate Commit Message
+### 4. Generate Commit Message
 
-Analyze the diff to determine:
+Analyze the diff to determine the description. If a ticket was extracted in step 1, use:
+
+```
+<type>: <TICKET> - <description>
+```
+
+Otherwise, determine:
 
 - **Type**: What kind of change is this?
 - **Scope**: What area/module is affected?
 - **Description**: One-line summary of what changed (present tense, imperative mood, <72 chars)
 
-### 4. Execute Commit
+### 5. Execute Commit
 
 ```bash
 # Single line
@@ -106,6 +136,8 @@ git commit -m "$(cat <<'EOF'
 EOF
 )"
 ```
+
+**NEVER add a `Co-Authored-By` trailer or any other attribution footer to commits.**
 
 ## Best Practices
 
