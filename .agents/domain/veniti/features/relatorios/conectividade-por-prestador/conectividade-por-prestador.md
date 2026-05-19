@@ -1,30 +1,62 @@
+---
+type: feature
+module: relatorios
+layer: feature
+related: []
+---
+
 # Feature: Melhorias no Relatório de Conectividade
 
-**Módulo:** Relatórios — Assistência  
-**URL:** `/assistencia/relatorios/provider_connectivity/`  
-**Portal:** Assistência  
+> Ajusta o relatório de conectividade de prestadores para respeitar a configuração personalizada de horário de trabalho nos cálculos de conectividade.
+
+## Descrição
+
+Ajustar o relatório de conectividade de prestadores para que os indicadores respeitem a configuração personalizada de horário de trabalho quando existente, garantindo maior precisão e aderência à realidade operacional.
+
+**Módulo:** Relatórios — Assistência
+**URL:** `/assistencia/relatorios/provider_connectivity/`
+**Portal:** Assistência
 **Versão do documento:** V1 — 2025
 
 ---
 
-## Objetivo
+## Entradas
 
-Ajustar o relatório de conectividade de prestadores para que os indicadores respeitem a configuração personalizada de horário de trabalho quando existente, garantindo maior precisão e aderência à realidade operacional.
+### Filtros Disponíveis
+
+| Campo | Detalhe |
+|---|---|
+| Período | Datas de início e fim do relatório |
+| Prestadores | Select2 com busca |
+| Cidade | Select2 com busca |
+| Estado | Select2 com busca |
+| Categoria de Serviço | Select2 |
+| Segmento de Serviço | Select2 |
+| Tipo de Serviço | Select2 |
+| Conexão | ONLINE / OFFLINE |
+| **Prestadores com horário configurado (NOVO)** | Select2 — opções: vazio (Todos) / `APENAS COM HORÁRIO CONFIGURADO` / `APENAS SEM HORÁRIO CONFIGURADO` |
+
+**Parâmetro API do novo filtro:** `config=with` / `config=without` / `config=` (vazio = Todos)
+
+## Saídas
+
+- Datatable com colunas: Nome, CNPJ, Status, Conectividade (tempo conectado), % Conexão
+- Ícone informativo ao lado do nome para prestadores com horário configurado
+- Tooltip com horários por dia da semana para prestadores com horário personalizado
+- Gráfico de conectividade atualizado
 
 ---
 
-## Processo Atual (Before)
+## Regras de Negócio
 
-- O relatório considera **24 horas por dia** para todos os prestadores, independentemente de possuírem configuração de horário.
-- Filtros disponíveis: Período, Prestadores, Cidade, Estado, Categoria de Serviço, Segmento de Serviço, Tipo de Serviço, Conexão.
-- Datatable exibe: Nome, CNPJ, Status, Conectividade (tempo conectado), % Conexão.
-- A configuração de horário de trabalho (definida via Prestador > Configuração > Geral ou Assistência > Rede > Prestadores > Editar) **não impactava** o relatório.
+### Processo Anterior (Before)
 
----
+- O relatório considerava **24 horas por dia** para todos os prestadores, independentemente de possuírem configuração de horário.
+- A configuração de horário de trabalho **não impactava** o relatório.
 
-## Novo Processo (After)
+### Novo Processo (After)
 
-### 3.1 — Regra de Cálculo da Conectividade
+#### Regra de Cálculo da Conectividade
 
 Para cada prestador no relatório, o sistema verifica se existe configuração personalizada de horário de trabalho.
 
@@ -36,30 +68,12 @@ Para cada prestador no relatório, o sistema verifica se existe configuração p
 
 **Definição de "configuração ativa":** Prestador com ao menos 1 dia da semana configurado é considerado "com horário configurado".
 
-**Exemplo:** Segunda-feira configurada das 08:00 às 18:00 → considera apenas 10 horas para todas as segundas-feiras dentro do período selecionado.
-
 **Edge case — período inteiramente em dias não configurados:** Exibir 0% de conexão e 0h de conectividade, sem erro.
 
-### 3.2 — Novo Filtro no Relatório
-
-| Campo | Detalhe |
-|---|---|
-| **Nome (spec)** | Prestadores com horário de trabalho |
-| **Nome (UI real)** | **Prestadores com horário configurado:** |
-| **Tipo** | Select (Select2) |
-| **Opções (UI real)** | *(vazio — Todos)* / `APENAS COM HORÁRIO CONFIGURADO` / `APENAS SEM HORÁRIO CONFIGURADO` |
-| **Valor padrão** | Vazio (comportamento "Todos") |
-| **Parâmetro na API** | `config=` |
-
-**Comportamento:**
-- **Todos:** sem filtro adicional (comportamento atual).
-- **Apenas com horário configurado:** lista somente prestadores com configuração ativa de horário.
-- **Apenas sem horário configurado:** lista somente prestadores sem configuração de horário.
-
-### 3.3 — Tooltip Informativo na Listagem
+#### Tooltip Informativo na Listagem
 
 Para prestadores com configuração personalizada de horário:
-- Exibir **ícone informativo** ao lado do nome no datatable.
+- Exibir **ícone informativo** ao lado do nome no datatable
 - Ao passar o mouse, exibir tooltip com o seguinte texto (dinâmico):
 
 ```
@@ -79,12 +93,10 @@ Os indicadores respeitam exclusivamente esses períodos configurados.
 ```
 
 **Regras do tooltip:**
-- Horário reflete exatamente o que estiver configurado.
-- Dia não configurado → exibir nome do dia + "Não configurado".
-- Todos os 7 dias sempre listados (nenhum omitido).
-- **Não exibir** tooltip para prestadores sem horário configurado.
-
----
+- Horário reflete exatamente o que estiver configurado
+- Dia não configurado → exibir nome do dia + "Não configurado"
+- Todos os 7 dias sempre listados (nenhum omitido)
+- **Não exibir** tooltip para prestadores sem horário configurado
 
 ## Critérios de Aceitação
 
@@ -97,38 +109,6 @@ Os indicadores respeitam exclusivamente esses períodos configurados.
 | CA5 | Usuário seleciona "Apenas sem horário configurado" no filtro | Relatório é filtrado | Lista apenas prestadores sem configuração de horário |
 | CA6 | Prestador possui horário configurado | Prestador aparece na listagem | Ícone informativo exibido ao lado do nome com tooltip detalhando horários por dia da semana |
 | CA7 | Dia da semana não está configurado | Tooltip é exibido | Nome do dia seguido de "Não configurado" |
-
----
-
-## Dependências e Pré-condições
-
-- Configuração de horário de trabalho pode ser definida em dois locais:
-  - Portal Prestador: Configuração > Geral
-  - Portal Assistência: Rede > Prestadores > Editar
-- **Dados de teste necessários:**
-  - Prestador A: horário configurado em todos os 7 dias
-  - Prestador B: horário configurado apenas em alguns dias (sábado e domingo sem configuração)
-  - Prestador C: sem nenhum horário configurado
-
----
-
-## Fora do Escopo
-
-- Cadastro/edição de horário de trabalho do prestador (funcionalidade já existente)
-- Outros relatórios além do de conectividade
-- Impacto no cálculo de outros módulos
-
----
-
-## Descobertas da Exploração Real
-
-### 2026-04-09 / 2026-04-10
-- **Label divergente:** O filtro está implementado como "Prestadores com horário configurado:" — diferente do spec ("Prestadores com horário de trabalho")
-- **Opções em uppercase:** UI exibe "APENAS COM HORÁRIO CONFIGURADO" e "APENAS SEM HORÁRIO CONFIGURADO" (spec usava minúsculas)
-- **Endpoint API:** `__acoes.php?datatable_provider_connectivity&date_from=...&date_to=...&config=...`
-- **Parâmetro do novo filtro:** `config=with` / `config=without` / `config=` (vazio = Todos)
-
----
 
 ## Comportamentos Confirmados
 
@@ -143,9 +123,34 @@ Os indicadores respeitam exclusivamente esses períodos configurados.
 
 ---
 
-## QA Notes
+## Descobertas da Exploração Real
+
+- **Label divergente:** O filtro está implementado como "Prestadores com horário configurado:" — diferente do spec ("Prestadores com horário de trabalho")
+- **Opções em uppercase:** UI exibe "APENAS COM HORÁRIO CONFIGURADO" e "APENAS SEM HORÁRIO CONFIGURADO" (spec usava minúsculas)
+- **Endpoint API:** `__acoes.php?datatable_provider_connectivity&date_from=...&date_to=...&config=...`
+- **Parâmetro do novo filtro:** `config=with` / `config=without` / `config=` (vazio = Todos)
+
+## Fora do Escopo
+
+- Cadastro/edição de horário de trabalho do prestador (funcionalidade já existente)
+- Outros relatórios além do de conectividade
+- Impacto no cálculo de outros módulos
+
+---
+
+## Notas de QA
 
 - **Divisão por zero resolvida:** Período inteiramente em dias não configurados exibe 0% e 0h sem erro.
 - **Filtro "com horário" confirmado:** Inclui prestadores com configuração em apenas 1 dia da semana.
 - **Tooltip 7 dias confirmado:** Todos os 7 dias sempre listados; mockup truncado era representação visual incompleta.
-- **Parâmetro API:** `config=with` (apenas com horário) / `config=without` (apenas sem) / `config=` vazio = Todos. Endpoint: `__acoes.php?datatable_provider_connectivity&date_from=...&date_to=...&config=...`.
+- **Parâmetro API:** `config=with` (apenas com horário) / `config=without` (apenas sem) / `config=` vazio = Todos.
+
+## Dependências
+
+- Configuração de horário de trabalho pode ser definida em dois locais:
+  - Portal Prestador: Configuração > Geral
+  - Portal Assistência: Rede > Prestadores > Editar
+- **Dados de teste necessários:**
+  - Prestador A: horário configurado em todos os 7 dias
+  - Prestador B: horário configurado apenas em alguns dias (sábado e domingo sem configuração)
+  - Prestador C: sem nenhum horário configurado

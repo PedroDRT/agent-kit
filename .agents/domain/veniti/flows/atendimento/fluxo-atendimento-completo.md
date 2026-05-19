@@ -1,10 +1,26 @@
+---
+type: flow
+module: atendimento
+layer: flow
+related:
+  - criacao-atendimento
+  - gestao-status-atendimento
+  - ciclo-vida-acionamento
+  - dispatch-automatico
+  - calculo-credito
+---
+
 # Fluxo de Atendimento Completo
 
-## Description
+> Descreve o ciclo de vida completo de uma solicitação de assistência — desde o registro inicial até a finalização do serviço e geração do crédito.
+
+## Descrição
 
 Descreve o ciclo de vida completo de uma solicitação de assistência — desde o registro inicial pelo operador ou sistema externo até a finalização do serviço e geração do crédito. Este é o fluxo central do sistema Veniti.
 
-## Steps
+---
+
+## Fluxo
 
 ### 1. Registro do Atendimento
 - **Ator**: Operador interno (portal Assistência) ou sistema externo (extensão via API)
@@ -53,20 +69,22 @@ Descreve o ciclo de vida completo de uma solicitação de assistência — desde
 - **Sistema**: Dispara pesquisa de satisfação ao beneficiário após finalização
 - **Resultado**: Pontuação NPS registrada na tabela `nps`
 
-## Entry Points
+---
+
+## Pontos de Entrada
 
 - Portal Assistência: `/assistencia/operacao/atendimentos.php` (criação manual)
 - API externa: `/extensao/create_attendance.php` (criação programática)
 - Portal Cliente: `/cliente/operacao/atendimentos.php` (criação pelo cliente)
 
-## Exit Points
+## Pontos de Saída
 
 - Atendimento `FINALIZADO` + crédito gerado (sucesso)
 - Atendimento `CANCELADO` (cancelamento antes da finalização)
 - Atendimento `NEGADO` (negação de cobertura)
 - Atendimento `NAO RECUPERADO` (serviço sem sucesso)
 
-## Variations
+## Variações
 
 ### Atendimento Agendado
 - Na criação: `data_agendamento` preenchida
@@ -81,7 +99,7 @@ Descreve o ciclo de vida completo de uma solicitação de assistência — desde
 - Pode ocorrer em qualquer estado antes de `FINALIZADO`
 - Se prestador já aceitou: notificação de cancelamento enviada ao prestador
 
-## Related Features
+## Features Relacionadas
 
 - [[criacao-atendimento]]
 - [[gestao-status-atendimento]]

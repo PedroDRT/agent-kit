@@ -1,10 +1,24 @@
+---
+type: flow
+module: creditos
+layer: flow
+related:
+  - calculo-credito
+  - ciclo-vida-acionamento
+  - gestao-status-atendimento
+---
+
 # Fluxo de Cálculo de Crédito
 
-## Description
+> Descreve o processo automático de cálculo e registro do valor de crédito gerado ao cliente após a finalização de um atendimento.
+
+## Descrição
 
 Descreve o processo automático de cálculo e registro do valor de crédito gerado ao cliente após a finalização de um atendimento. Este fluxo é disparado pelo sistema e não requer interação humana direta.
 
-## Steps
+---
+
+## Fluxo
 
 ### 1. Trigger de Finalização
 - **Evento**: Acionamento muda para status `FINALIZADO`
@@ -26,6 +40,7 @@ Descreve o processo automático de cálculo e registro do valor de crédito gera
 - **Fallback**: Se não configurado, usa método padrão do sistema
 
 ### 4. Execução do Cálculo
+
 #### Método ValorAtendimento
 - Busca valor fixo configurado para o tipo de serviço no plano
 - Aplica multiplicadores (se houver)
@@ -55,17 +70,19 @@ Descreve o processo automático de cálculo e registro do valor de crédito gera
 - **Sistema**: `CalcularMetricas.php` atualiza totalizadores do período
 - **Disponível**: Dashboards de faturamento nos portais Assistência e Cliente
 
-## Entry Points
+---
+
+## Pontos de Entrada
 
 - Acionamento finalizado (automático ou manual pelo prestador/operador)
 
-## Exit Points
+## Pontos de Saída
 
 - **Sucesso**: Crédito registrado, métricas atualizadas
 - **Erro de configuração**: Plano sem método de cálculo → log de erro, crédito pendente para revisão manual
 - **Dados inválidos**: `km_total` inválido → valor zerado registrado, alerta gerado
 
-## Variations
+## Variações
 
 ### Socorre A&E
 - `CalcularValorCreditoSocorreAe.php` executa lógica de cálculo específica para essa marca
@@ -75,7 +92,7 @@ Descreve o processo automático de cálculo e registro do valor de crédito gera
 - Valor negativo registrado para atendimentos cancelados após aceite do prestador
 - Cobre custo de deslocamento do prestador já pago
 
-## Related Features
+## Features Relacionadas
 
 - [[calculo-credito]]
 - [[ciclo-vida-acionamento]]

@@ -1,29 +1,27 @@
+---
+type: flow
+module: relatorios
+layer: flow
+related:
+  - conectividade-por-prestador
+---
+
 # Flow — Relatório de Conectividade de Prestadores
 
-**Feature:** melhorias-no-relatorio-de-conectividade  
-**Portal:** Assistência  
-**URL:** `/assistencia/relatorios/provider_connectivity/`  
-**Seletores:** `knowledge/system/selectors/melhorias-no-relatorio-de-conectividade.json`
+> Descreve os fluxos de acesso, aplicação de filtros e visualização de resultados no Relatório de Conectividade de Prestadores do portal Assistência.
+
+## Descrição
+
+Descreve os fluxos de interação para acessar e operar o Relatório de Conectividade de Prestadores, incluindo o novo filtro por configuração de horário, aplicação combinada de filtros e visualização do tooltip informativo nos resultados.
+
+**Portal:** Assistência
+**URL:** `/assistencia/relatorios/provider_connectivity/`
 
 ---
 
-## Observações Gerais da Exploração
+## Fluxo
 
-| Item | Observado |
-|---|---|
-| Label do novo filtro | `"Prestadores com horário configurado:"` |
-| Opção padrão do novo filtro | *(vazio)* — comportamento "Todos" |
-| Opção 1 | `"APENAS COM HORÁRIO CONFIGURADO"` (value: `with`) |
-| Opção 2 | `"APENAS SEM HORÁRIO CONFIGURADO"` (value: `without`) |
-| Parâmetro HTTP do novo filtro | `config=with` / `config=without` / `config=` |
-| Datatable endpoint | `__acoes.php?datatable_provider_connectivity` → **200 OK** |
-| Gráfico endpoint | `__acoes.php?graph_provider_connectivity` → **200 OK** |
-| Alert dialog no carregamento | Pode aparecer em ambientes sem dados no período — aceitar via `page.on('dialog', d => d.accept())` |
-| Tooltip do ícone informativo | **Não observável** — datatable retorna 400; seletor pendente de confirmação |
-
----
-
-## Flow 1 — Login no Portal Assistência
+### Flow 1 — Login no Portal Assistência
 
 ```
 1. Acessar http://[baseUrl]/assistencia/
@@ -40,11 +38,9 @@
 ✅ Verificação: URL contém "/assistencia/dashboard/"
 ```
 
----
+### Flow 2 — Acesso ao Relatório de Conectividade
 
-## Flow 2 — Acesso ao Relatório de Conectividade
-
-### Via URL Direta (recomendado para testes)
+#### Via URL Direta (recomendado para testes)
 
 ```
 1. Autenticar (Flow 1)
@@ -58,31 +54,24 @@
    - Filtro "Prestadores com horário configurado:" presente na página
 ```
 
-### Via Menu de Navegação
+#### Via Menu de Navegação
 
 ```
 1. Autenticar (Flow 1)
-2. Clicar no menu "Relatórios" na sidebar esquerda
-   → Expande submenu
+2. Clicar no menu "Relatórios" na sidebar esquerda → expande submenu
 3. Clicar em "Conectividade de Prestadores NOVO"
-   → Navega para /assistencia/relatorios/provider_connectivity/
 4. Aceitar dialog se aparecer
-
-✅ Verificação: idêntica ao acesso por URL direta
 ```
 
-### Acesso Sem Autenticação (RN-GLOBAL-001)
+#### Acesso Sem Autenticação (RN-GLOBAL-001)
 
 ```
 1. Sem sessão ativa, acessar diretamente a URL do relatório
-2. Aguardar redirecionamento
 
 ✅ Verificação: URL redireciona para /assistencia/login/
 ```
 
----
-
-## Flow 3 — Aplicar Filtro Padrão (Período)
+### Flow 3 — Aplicar Filtro Padrão (Período)
 
 ```
 Pré-condição: Relatório carregado (Flow 2)
@@ -96,17 +85,12 @@ Pré-condição: Relatório carregado (Flow 2)
    - Datatable exibe linhas com colunas: Nome | CNPJ | Status | Conectividade | % Conexão
    - Gráfico (#graph_provider_connectivity / #div_grafico) é atualizado
    - Endpoint GET __acoes.php?datatable_provider_connectivity retorna 200
-
-⚠️ Estado atual: endpoint retorna 400 — todos os filtros falham no datatable
 ```
 
----
-
-## Flow 4 — Aplicar Novo Filtro: Prestadores com Horário Configurado
+### Flow 4 — Aplicar Novo Filtro: Prestadores com Horário Configurado
 
 ```
 Pré-condição: Relatório carregado (Flow 2)
-              Prestadores A e B cadastrados no ambiente
 
 1. Selecionar valor desejado em #filter_config:
    - Para "APENAS COM HORÁRIO CONFIGURADO": page.selectOption('#filter_config', 'with')
@@ -120,9 +104,7 @@ Pré-condição: Relatório carregado (Flow 2)
 ✅ Verificação: apenas prestadores do tipo selecionado aparecem no datatable
 ```
 
----
-
-## Flow 5 — Combinação de Filtros
+### Flow 5 — Combinação de Filtros
 
 ```
 Pré-condição: Relatório carregado
@@ -136,9 +118,7 @@ Pré-condição: Relatório carregado
 ✅ Filtros são cumulativos (AND)
 ```
 
----
-
-## Flow 6 — Limpar Filtros
+### Flow 6 — Limpar Filtros
 
 ```
 Pré-condição: Filtros aplicados
@@ -153,9 +133,7 @@ Pré-condição: Filtros aplicados
 ✅ Verificação: campos retornam ao estado padrão; datatable é recarregado
 ```
 
----
-
-## Flow 7 — Tooltip Informativo (PENDENTE — requer correção do bug 400)
+### Flow 7 — Tooltip Informativo (PENDENTE — requer correção do bug 400)
 
 ```
 Pré-condição: Datatable funcional + Prestador A ou B cadastrado
@@ -166,7 +144,7 @@ Pré-condição: Datatable funcional + Prestador A ou B cadastrado
 
 ✅ Verificação para prestador COM horário (CT006.1):
    - Ícone informativo presente na coluna Nome
-   
+
 4. Passar o mouse (hover) sobre o ícone informativo
 
 ✅ Verificação para conteúdo do tooltip (CT006.2):
@@ -184,7 +162,20 @@ Pré-condição: Datatable funcional + Prestador A ou B cadastrado
 
 ---
 
-## Estrutura do Formulário de Filtros
+## Pontos de Entrada
+
+- Menu lateral: Relatórios → Conectividade de Prestadores NOVO
+- URL direta: `/assistencia/relatorios/provider_connectivity/`
+
+## Pontos de Saída
+
+- Datatable com prestadores filtrados e métricas de conectividade
+- Gráfico atualizado com dados do período
+- Redirect para login (sem autenticação)
+
+## Variações
+
+### Estrutura do Formulário de Filtros
 
 ```
 [FILTROS]
@@ -202,9 +193,7 @@ Pré-condição: Datatable funcional + Prestador A ou B cadastrado
   [Filtrar... — #btn_provider_connectivity_filter]
 ```
 
----
-
-## Estrutura da Página de Resultados
+### Estrutura da Página de Resultados
 
 ```
 [DATATABLE — #datatable_provider_connectivity]
@@ -218,7 +207,25 @@ Pré-condição: Datatable funcional + Prestador A ou B cadastrado
 
 ---
 
-## Notas de Ambiente
+## Notas de QA
+
+### Observações Gerais da Exploração
+
+| Item | Observado |
+|---|---|
+| Label do novo filtro | `"Prestadores com horário configurado:"` |
+| Opção padrão do novo filtro | *(vazio)* — comportamento "Todos" |
+| Opção 1 | `"APENAS COM HORÁRIO CONFIGURADO"` (value: `with`) |
+| Opção 2 | `"APENAS SEM HORÁRIO CONFIGURADO"` (value: `without`) |
+| Parâmetro HTTP do novo filtro | `config=with` / `config=without` / `config=` |
+| Datatable endpoint | `__acoes.php?datatable_provider_connectivity` → **200 OK** |
+| Gráfico endpoint | `__acoes.php?graph_provider_connectivity` → **200 OK** |
+| Alert dialog no carregamento | Pode aparecer em ambientes sem dados no período — aceitar via `page.on('dialog', d => d.accept())` |
+| Tooltip do ícone informativo | **Não observável** — datatable retorna 400; seletor pendente de confirmação |
 
 - Testes devem ser executados no ambiente Linux onde o banco remoto está acessível corretamente.
-- O ambiente Windows apresentou problema de conectividade com o banco durante a exploração — desconsiderar observações de erro feitas nessa máquina.
+- O ambiente Windows apresentou problema de conectividade com o banco durante a exploração.
+
+## Features Relacionadas
+
+- [[conectividade-por-prestador]]

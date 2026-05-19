@@ -1,94 +1,97 @@
+---
+type: feature
+module: reembolso
+layer: feature
+related:
+  - fluxo-reembolso-completo
+---
+
 # Status Personalizados de Reembolso
 
-## Resumo
+> Módulo que permite configurar status complementares personalizados para reembolsos, sem alterar os status padrão do sistema.
+
+## Descrição
 
 Módulo que permite configurar **status complementares personalizados** para reembolsos, sem alterar os status padrão do sistema. Possibilita que a equipe de assistência classifique o andamento dos reembolsos com status adicionais para controle interno.
 
+**Caminho de acesso:** `Configurações → Financeiro → Status reembolso`
+
 ---
 
-## Critérios de Aceitação
+## Entradas
 
-### Módulo de Configuração
+### Permissões
+
+| Permissão | Descrição |
+|---|---|
+| Cadastrar Status personalizados de reembolso | Permite criar novos status |
+| Consultar Status personalizados de reembolso | Controla visibilidade do módulo |
+| Editar Status personalizados de reembolso | Permite editar status existentes |
+| Excluir Status personalizados de reembolso | Permite excluir status |
+
+### Cadastro de Status
+
+Campos:
+- **Nome** (obrigatório, máx 100–255 caracteres)
+- **Descrição** (opcional)
+
+## Saídas
+
+- Novo status disponível para seleção no card "INFORMAÇÕES DO REEMBOLSO" de qualquer reembolso
+- Nova coluna "Status adicional" na listagem de reembolsos
+- Filtro de busca por status adicional disponível na listagem
+
+---
+
+## Regras de Negócio
+
+- Os status padrão do sistema **não devem ser alterados**
+- Novos status funcionam como **status complementar** (adicional)
+- Status cadastrados podem ser utilizados para **controle interno da assistência**
+- Status com mesmo nome não pode ser duplicado — erro "Status com este nome já existe"
+- Nomes de status padrão (RASCUNHO, ANÁLISE, APROVADO, PENDENTE, FINALIZADO) são rejeitados com "Nome reservado"
+- Exclusão bloqueada quando há reembolsos vinculados — mensagem "Status possui reembolsos vinculados"
+- Status sem vínculos pode ser excluído normalmente
+- Trim aplicado antes de salvar
+- Caracteres especiais (@, #, &, !) aceitos no nome
+- Alteração de nome reflete imediatamente no select do reembolso
+
+### Estrutura de Dados
+
+```
+reembolso.status_adicional: string (nullable)
+  - Armazena o ID ou nome do status personalizado selecionado
+  - Pode ser NULL se não foi selecionado
+```
+
+```
+ReembolsoStatus {
+  id: int,
+  nome: string,
+  descricao: string (opcional),
+  cliente_id: int (se aplicável),
+  ativo: boolean,
+  criado_em: timestamp,
+  atualizado_em: timestamp
+}
+```
+
+## Critérios de Aceitação
 
 - **CA-001:** Módulo acessível em `Configurações → Financeiro → Status reembolso`
 - **CA-002:** Deve exibir datatable com colunas: **Cliente, Tipo de evento, Tipo de serviço, Motivo do reembolso, Status**
 - **CA-003:** Deve possuir opções padrão de exportação do sistema
 - **CA-004:** Deve permitir personalização de colunas
-
-### Permissões
-
-- **CA-005:** Sistema deve criar 4 novas permissões:
-  - Cadastrar Status personalizados de reembolso
-  - Consultar Status personalizados de reembolso (controla visibilidade do módulo)
-  - Editar Status personalizados de reembolso
-  - Excluir Status personalizados de reembolso
-
-### Cadastro de Status
-
+- **CA-005:** Sistema deve criar 4 novas permissões (Cadastrar, Consultar, Editar, Excluir)
 - **CA-006:** Dado que o usuário acessa o módulo, quando clicar em "Cadastrar", então deve permitir criar um novo status personalizado
 - **CA-007:** Dado que um status foi criado, quando o reembolso for aberto, então deve aparecer em um campo select dentro do card "INFORMAÇÕES DO REEMBOLSO"
 - **CA-008:** Dado que o usuário selecionou um status, quando salvar, então o sistema deve armazenar o status complementar
 - **CA-009:** Dado que múltiplos status foram cadastrados, quando listar reembolsos, então deve exibir nova coluna "Status adicional"
 - **CA-010:** Dado que um reembolso não possui status adicional, quando exibido na lista, então a coluna deve mostrar "--"
-
-### Filtro de Busca
-
 - **CA-011:** Dado que o usuário acessa o filtro da listagem de reembolsos, quando selecionar um status personalizado, então deve retornar apenas reembolsos com esse status
-
-### Regras Gerais
-
 - **CA-012:** Os status padrão do sistema **não devem ser alterados**
 - **CA-013:** Novos status funcionam como **status complementar** (adicional)
 - **CA-014:** Status cadastrados podem ser utilizados para **controle interno da assistência**
-
----
-
-## Escopo de Teste
-
-✅ **Será testado:**
-
-1. **Acesso ao módulo** — navegação até `Configurações → Financeiro → Status reembolso`
-2. **Criação de status** — cadastro de novo status personalizado
-3. **Exibição no reembolso** — campo select no card INFORMAÇÕES DO REEMBOLSO
-4. **Seleção e persistência** — salvar status selecionado
-5. **Coluna em datatable** — exibição de nova coluna "Status adicional"
-6. **Filtro de busca** — filtrar reembolsos por status adicional
-7. **Permissões** — validar 4 novas permissões controlam acesso
-8. **Validação de status padrão** — status padrão do sistema não são alterados
-9. **Exibição de "--"** — quando status não está preenchido
-10. **Edição e exclusão** — modificar ou remover status cadastrados
-
----
-
-## Fora do Escopo
-
-❌ **Não será testado neste ciclo:**
-
-- Lógica condicional baseada em status adicional (comportamentos condicionais posteriores)
-- Integração com relatórios específicos que possam usar status adicional
-- Sincronização com sistemas externos de status personalizado
-- Notificações baseadas em mudança de status adicional
-- Histórico de alterações de status adicional (apenas register em ocorrências — será validado em escopo de ocorrências)
-
----
-
-## Dependências e Premissas
-
-### Dependências Externas
-
-- **Módulo de Reembolso:** Feature completa de reembolso deve estar funcional
-- **Módulo de Atendimento:** Reembolsos são vinculados a atendimentos
-- **Sistema de Permissões:** 4 novas permissões devem ser criadas no sistema
-- **Datatable:** Componente de lista com coluna adicional
-
-### Premissas
-
-- ✅ Usuário possui credenciais válidas com permissão `Consultar Status personalizados de reembolso`
-- ✅ Reembolsos já existem na base de dados para filtro
-- ✅ Sistema usa padrão `Todos` para campos genéricos (já validado em outros módulos)
-- ✅ Campo select será posicionado no card "INFORMAÇÕES DO REEMBOLSO" (localização fixa definida)
-
----
 
 ## Comportamentos Confirmados
 
@@ -116,69 +119,42 @@ Módulo que permite configurar **status complementares personalizados** para ree
 
 ---
 
-## Pontos de Atenção (QA Notes)
+## Escopo de Teste
 
-### Ambiguidades Resolvidas pelos Testes
+1. **Acesso ao módulo** — navegação até `Configurações → Financeiro → Status reembolso`
+2. **Criação de status** — cadastro de novo status personalizado
+3. **Exibição no reembolso** — campo select no card INFORMAÇÕES DO REEMBOLSO
+4. **Seleção e persistência** — salvar status selecionado
+5. **Coluna em datatable** — exibição de nova coluna "Status adicional"
+6. **Filtro de busca** — filtrar reembolsos por status adicional
+7. **Permissões** — validar 4 novas permissões controlam acesso
+8. **Validação de status padrão** — status padrão do sistema não são alterados
+9. **Exibição de "--"** — quando status não está preenchido
+10. **Edição e exclusão** — modificar ou remover status cadastrados
 
-1. **Unicidade de nome — CONFIRMADO:** Sistema rejeita nomes duplicados com erro "Status com este nome já existe" (CT003.2). Nomes de status padrão (RASCUNHO, ANÁLISE, APROVADO, PENDENTE, FINALIZADO) são rejeitados com "Nome reservado" (CT010.2).
+## Fora do Escopo
 
-2. **Persistência do status — CONFIRMADO:** Status persiste por reembolso após salvar, sobrevive a logout/login e refresh (CT012.1, CT012.3). Estrutura de dados: campo `status_adicional` na tabela `reembolsos` (confirmado via comportamento).
+- Lógica condicional baseada em status adicional (comportamentos condicionais posteriores)
+- Integração com relatórios específicos que possam usar status adicional
+- Sincronização com sistemas externos de status personalizado
+- Notificações baseadas em mudança de status adicional
+- Histórico de alterações de status adicional (apenas register em ocorrências — será validado em escopo de ocorrências)
 
-3. **Exclusão com reembolsos vinculados — CONFIRMADO:** Exclusão bloqueada com mensagem "Status possui reembolsos vinculados" (CT005.3). Status sem vínculos pode ser excluído normalmente.
+---
 
-4. **Status padrão protegidos — CONFIRMADO:** RASCUNHO, ANÁLISE, APROVADO, PENDENTE e FINALIZADO não aparecem na listagem do módulo CRUD (CT010.1).
-
-5. **Herança em templates — NÃO testado:** Reembolsos criados de templates — comportamento de herança do status adicional fora do escopo deste ciclo.
-
-6. **Ordem de exibição no select — NÃO documentado:** Ordem dos status no select do reembolso não foi especificada nem testada formalmente.
-
-### Ambiguidade Aberta
+## Notas de QA
 
 - **Filtro case-insensitive:** Comportamento de busca por status adicional (LIKE case-insensitive ou exact match) não foi documentado formalmente.
+- **Herança em templates — NÃO testado:** Reembolsos criados de templates — comportamento de herança do status adicional fora do escopo deste ciclo.
+- **Ordem de exibição no select — NÃO documentado:** Ordem dos status no select do reembolso não foi especificada nem testada formalmente.
 
-### Riscos Resolvidos
+## Dependências
 
-| Risco | Status | Observação |
-|-------|--------|-----------|
-| Usuário sem permissão vê módulo | ✅ Resolvido | Permissão `Consultar` bloqueia acesso — confirmado CT001.2 |
-| Status não persiste após salvar | ✅ Resolvido | Persistência confirmada inclusive após logout/login |
-| Coluna não aparece em datatable | ✅ Resolvido | Coluna "Status adicional" confirmada, exibe "--" quando vazio |
-| Status padrão alterado acidentalmente | ✅ Resolvido | Status padrão protegidos — não aparecem no módulo CRUD |
+- **Módulo de Reembolso:** Feature completa de reembolso deve estar funcional
+- **Módulo de Atendimento:** Reembolsos são vinculados a atendimentos
+- **Sistema de Permissões:** 4 novas permissões devem ser criadas no sistema
+- **Datatable:** Componente de lista com coluna adicional
 
----
+## Features Relacionadas
 
-## Fluxos Relacionados
-
-- **Fluxo de Reembolso Completo:** Status adicional é complemento, não substitui status padrão
-- **Gestão de Reembolso:** Seleção de status acontece dentro do reembolso já aberto
-- **Listagem de Reembolsos:** Novo filtro e coluna para status adicional
-
----
-
-## Estrutura de Dados Esperada
-
-### Campo no Reembolso
-
-```
-reembolso.status_adicional: string (nullable)
-  - Armazena o ID ou nome do status personalizado selecionado
-  - Pode ser NULL se não foi selecionado
-```
-
-### Entidade Status Personalizado
-
-```
-ReembolsoStatus {
-  id: int,
-  nome: string,
-  descricao: string (opcional),
-  cliente_id: int (se aplicável),
-  ativo: boolean,
-  criado_em: timestamp,
-  atualizado_em: timestamp
-}
-```
-
----
-
-
+- [[fluxo-reembolso-completo]]

@@ -1,10 +1,23 @@
+---
+type: flow
+module: autenticacao
+layer: flow
+related:
+  - login-multi-portal
+  - recuperacao-senha
+---
+
 # Fluxo de Login
 
-## Description
+> Descreve o processo de autenticação em qualquer um dos três portais do sistema (Assistência, Cliente, Prestador).
+
+## Descrição
 
 Descreve o processo de autenticação em qualquer um dos três portais do sistema (Assistência, Cliente, Prestador). O fluxo é idêntico em estrutura mas executado em código independente por portal. O roteamento de portal é feito via subdomínio HTTP.
 
-## Steps
+---
+
+## Fluxo
 
 ### 1. Resolução de Portal por Subdomínio
 - **Sistema**: `html/index.php` inspeciona `HTTP_HOST`
@@ -55,13 +68,15 @@ Descreve o processo de autenticação em qualquer um dos três portais do sistem
   - Cliente → `/cliente/operacao/eventos.php`
   - Prestador → `/prestador/dashboard/`
 
-## Entry Points
+---
+
+## Pontos de Entrada
 
 - Acesso direto à URL do portal (sem sessão ativa)
 - Link de auto-login recebido por e-mail
 - Redirecionamento após logout
 
-## Exit Points
+## Pontos de Saída
 
 - **Sucesso**: Dashboard do portal carregado
 - **Falha de credencial**: Mensagem de erro, formulário reexibido
@@ -69,7 +84,7 @@ Descreve o processo de autenticação em qualquer um dos três portais do sistem
 - **Conta bloqueada**: Mensagem genérica, sem indicação de bloqueio específico
 - **Tenant inativo**: Acesso negado com mensagem de erro
 
-## Variations
+## Variações
 
 ### Recuperação de Senha
 - Usuário clica em "Esqueci a senha" → [[recuperacao-senha]] iniciado
@@ -80,7 +95,7 @@ Descreve o processo de autenticação em qualquer um dos três portais do sistem
 - Modal `modal-activated-account.php` exibido
 - Senha criada na primeira sessão
 
-## Related Features
+## Features Relacionadas
 
 - [[login-multi-portal]]
 - [[recuperacao-senha]]

@@ -1,6 +1,19 @@
+---
+type: feature
+module: fechamento
+layer: feature
+related:
+  - fechamento-por-prestador
+  - faturamento-lote
+  - agrupamento-lote
+  - execucao-servico
+---
+
 # Fechamento Financeiro — Por Prestador
 
-## Description
+> O Fechamento com o Prestador agrupa acionamentos finalizados em um período, negocia valores bilateralmente e gera o lote de pagamento que alimenta Contas a Pagar.
+
+## Descrição
 
 O **Fechamento com o Prestador** é a perspectiva do fechamento financeiro em que a Assistência (Veniti) agrupa os acionamentos finalizados pelo prestador em um período, negocia os valores bilateralmente e gera o lote de pagamento que alimenta Contas a Pagar.
 
@@ -9,7 +22,9 @@ O **Fechamento com o Prestador** é a perspectiva do fechamento financeiro em qu
 - **Resultado:** Lote (batch) de pagamentos ao prestador → alimenta Contas a Pagar
 - **Portais:** `/assistencia/faturamento/prestador/` e `/prestador/fechamento/`
 
-## Inputs
+---
+
+## Entradas
 
 | Campo | Tipo | Descrição |
 |---|---|---|
@@ -20,14 +35,27 @@ O **Fechamento com o Prestador** é a perspectiva do fechamento financeiro em qu
 | `id_conta_bancaria` | integer | Conta bancária de débito |
 | `data_agendamento_pagamento` | date | Data prevista para pagamento |
 
-## Outputs
+## Saídas
 
 - Lote criado em `fechamento_prestador` com seus itens em `fechamento_prestador_itens`
 - Lançamento criado em `contas_pagar`
 - Prestador visualiza o lote em `/prestador/faturamento/`
 - Status do lote: `ABERTO → APROVADO → AGENDADO → REALIZADO`
 
-## Status States (Lote)
+---
+
+## Regras de Negócio
+
+- O fechamento consolida acionamentos `FINALIZADO` no período
+- Um acionamento só entra no fechamento se estiver em status `FINALIZADO`
+- A negociação de tarifas permite ajuste bilateral — Prestador pode apresentar contraproposta
+- Após `ACEITO`, os valores são fixados — não podem ser alterados sem cancelar e recriar o lote
+- O fechamento com Prestador gera lançamento em `contas_pagar` — é a origem dos pagamentos ao prestador
+- Prestadores visualizam seus lotes em `/prestador/faturamento/` com filtros por período, situação e número
+- A coluna `Data Recebimento` no lote do prestador registra quando o pagamento foi efetivamente recebido (confirmação bancária)
+- O período de referência (`time_mes_referente`) determina em qual competência o pagamento é lançado
+
+## Estados
 
 ```
 ABERTO → EM NEGOCIAÇÃO → SOLICITAÇÃO → ANÁLISE → ACEITO → AGENDADO → REALIZADO
@@ -48,18 +76,7 @@ ABERTO → EM NEGOCIAÇÃO → SOLICITAÇÃO → ANÁLISE → ACEITO → AGENDAD
 | `REALIZADO` | Sistema | Pagamento confirmado |
 | `CANCELADO` | Assistência | Lote cancelado |
 
-## Business Rules
-
-- O fechamento consolida acionamentos `FINALIZADO` no período
-- Um acionamento só entra no fechamento se estiver em status `FINALIZADO`
-- A negociação de tarifas permite ajuste bilateral — Prestador pode apresentar contraproposta
-- Após `ACEITO`, os valores são fixados — não podem ser alterados sem cancelar e recriar o lote
-- O fechamento com Prestador gera lançamento em `contas_pagar` — é a origem dos pagamentos ao prestador
-- Prestadores visualizam seus lotes em `/prestador/faturamento/` com filtros por período, situação e número
-- A coluna `Data Recebimento` no lote do prestador registra quando o pagamento foi efetivamente recebido (confirmação bancária)
-- O período de referência (`time_mes_referente`) determina em qual competência o pagamento é lançado
-
-## Edge Cases
+## Casos de Borda
 
 - Acionamento finalizado fora do período de fechamento — incluído no próximo período ou retroativo?
 - Prestador contesta valor de KM calculado durante a negociação
@@ -68,7 +85,9 @@ ABERTO → EM NEGOCIAÇÃO → SOLICITAÇÃO → ANÁLISE → ACEITO → AGENDAD
 - Conta bancária inválida no momento do agendamento do pagamento
 - Múltiplos lotes abertos simultaneamente para o mesmo prestador
 
-## QA Notes
+---
+
+## Notas de QA
 
 - **Risco crítico:** O fluxo de negociação bilateral (Assistência ↔ Prestador) tem múltiplas transições de status — o que acontece se ambos tentarem mudar o status simultaneamente?
 - **Risco:** Acionamento finalizado durante o processamento do fechamento — é incluído ou excluído do lote corrente?
@@ -77,7 +96,7 @@ ABERTO → EM NEGOCIAÇÃO → SOLICITAÇÃO → ANÁLISE → ACEITO → AGENDAD
 - **Edge case crítico:** `REALIZADO` sem confirmação bancária real — o sistema confia na marcação manual ou há integração bancária?
 - **Risco de auditoria:** Mudanças de status no lote devem ser rastreadas com usuário e timestamp — verificar se o log está implementado
 
-## Dependencies
+## Dependências
 
 - **Portal:** `html/assistencia/faturamento/prestador/` (lotes prestador)
 - **Portal Prestador:** `html/prestador/fechamento/`, `html/prestador/faturamento/`
@@ -86,12 +105,12 @@ ABERTO → EM NEGOCIAÇÃO → SOLICITAÇÃO → ANÁLISE → ACEITO → AGENDAD
 - **Use Cases:** `src/UseCases/CalcularMetricas.php`
 - **Banco:** `fechamento_prestador`, `fechamento_prestador_itens`, `contas_pagar`
 
-## Related Flows
+## Flows Relacionados
 
-- [[fechamento-financeiro]] (por-prestador)
+- [[fechamento-por-prestador]]
 - [[faturamento-lote]]
 
-## Related Features
+## Features Relacionadas
 
 - [[agrupamento-lote]]
 - [[execucao-servico]]

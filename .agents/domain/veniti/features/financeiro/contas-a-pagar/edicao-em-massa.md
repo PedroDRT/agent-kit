@@ -1,6 +1,17 @@
+---
+type: feature
+module: financeiro
+layer: feature
+related:
+  - fluxo-edicao-em-massa
+  - faturamento-lote
+---
+
 # Edição em Massa — Contas a Pagar
 
-## Description
+> Adiciona ações em lote à listagem de títulos de Contas a Pagar, permitindo Liquidar e Agendar múltiplos registros sem abrir cada item individualmente.
+
+## Descrição
 
 A **Edição em Massa** no módulo Contas a Pagar adiciona ações em lote à listagem de títulos, permitindo **Liquidar** e **Agendar** múltiplos registros sem abrir cada item individualmente. A funcionalidade opera por meio de uma coluna de seleção (checkbox) inserida como primeira coluna do datatable e de uma **barra de ação flutuante** exibida quando há ao menos um título selecionado.
 
@@ -9,7 +20,9 @@ A **Edição em Massa** no módulo Contas a Pagar adiciona ações em lote à li
 
 **Contexto:** Antes desta feature, agendar ou liquidar títulos era uma ação unitária — exigia abrir cada título individualmente, navegar até a tela de edição e salvar. Com alto volume de títulos, o processo se tornava operacionalmente lento.
 
-## Inputs
+---
+
+## Entradas
 
 | Elemento | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
@@ -20,14 +33,16 @@ A **Edição em Massa** no módulo Contas a Pagar adiciona ações em lote à li
 | Desconto | decimal | Não | Calculado automaticamente; campo bloqueado para edição manual |
 | Data de agendamento | date (dd/mm/aaaa) | Sim | Usada no modal Agendar |
 
-## Outputs
+## Saídas
 
 - **Liquidar (1 item):** título liquidado com a data e valor informados; juros/desconto calculados automaticamente com base na diferença
 - **Liquidar (lote):** todos os títulos selecionados liquidados com a data informada e o valor integral original de cada um
 - **Agendar (1 ou mais itens):** todos os títulos selecionados recebem a mesma data de agendamento informada
 - Após qualquer ação bem-sucedida: toast de sucesso exibido, datatable recarregado, seleção e barra flutuante limpas
 
-## Business Rules
+---
+
+## Regras de Negócio
 
 ### Seleção e Barra Flutuante
 - A coluna de checkbox é a **primeira coluna** do datatable
@@ -58,14 +73,16 @@ A **Edição em Massa** no módulo Contas a Pagar adiciona ações em lote à li
 - **Sem permissão de edição:** coluna de checkbox e barra flutuante não são exibidas; ações em massa não podem ser executadas
 - **Com permissão de edição:** acesso completo à feature
 
-## Edge Cases
+## Casos de Borda
 
 - Seleção mista de títulos com status `pago`, `agendado` e `vencido` — qualquer combinação é aceita; não há bloqueio por status
 - Fechar modal (botão X ou clique externo) sem confirmar: nenhuma alteração é aplicada; seleção é preservada
 - Modal de lote não exibe campos de valor — impossível editar valor individualmente por item via ação em massa
 - O valor exibido na listagem e somado na barra flutuante já contempla juros e descontos existentes no título
 
-## QA Notes
+---
+
+## Notas de QA
 
 - **Verificar bloqueio de campos:** Juros e Desconto devem estar disabled no front-end; verificar também se o back-end rejeita/ignora envio manual desses valores
 - **Precisão financeira:** Somar múltiplos valores decimais pode gerar erros de ponto flutuante — verificar CT003.2
@@ -74,17 +91,17 @@ A **Edição em Massa** no módulo Contas a Pagar adiciona ações em lote à li
 - **Permissão:** Cenário sem permissão (CT001.2) deve ser validado manualmente; automação cobre apenas perfil com permissão
 - **Não persistência de seleção:** Paginar e ordenar devem limpar seleção e barra flutuante — verificar CT003.5 e CT003.6
 
-## Dependencies
+## Dependências
 
 - **Portal:** Listagem de Contas a Pagar — Portal Assistência
 - **Permissão:** permissão de edição de contas a pagar vinculada ao perfil do usuário
 - **Massa de dados:** títulos em diferentes status com valores conhecidos (ver `knowledge/test-data/test-assets.md`)
 
-## Related Flows
+## Flows Relacionados
 
 - [[fluxo-edicao-em-massa]]
 - [[faturamento-lote]]
 
-## Related Features
+## Features Relacionadas
 
 - [[faturamento-lote]]

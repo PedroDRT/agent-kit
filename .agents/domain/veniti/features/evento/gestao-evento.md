@@ -1,12 +1,28 @@
+---
+type: feature
+module: evento
+layer: feature
+related:
+  - atendimento-lifecycle
+  - fluxo-atendimento-completo
+  - criacao-atendimento
+  - vinculo-plano-beneficiario
+  - ciclo-vida-acionamento
+---
+
 # Gestão de Evento
 
-## Description
+> O Evento é a entidade raiz do ciclo operacional do Veniti, representando o incidente ou ocorrência reportada pelo beneficiário.
+
+## Descrição
 
 O **Evento** é a entidade raiz do ciclo operacional do Veniti. Representa o incidente ou ocorrência reportada pelo beneficiário (ex: colisão, pane, roubo). É o container pai que agrupa um ou mais Atendimentos. Todo serviço de assistência começa com a abertura de um Evento.
 
 **Hierarquia:** `Evento → Atendimento(s) → Acionamento(s)`
 
-## Inputs
+---
+
+## Entradas
 
 | Campo | Tipo | Descrição |
 |---|---|---|
@@ -21,7 +37,7 @@ O **Evento** é a entidade raiz do ciclo operacional do Veniti. Representa o inc
 | `obs` | text | Observações iniciais do incidente |
 | `data_agendamento` | datetime | Para eventos agendados (não imediatos) |
 
-## Outputs
+## Saídas
 
 - Registro criado na tabela `eventos`
 - `protocolo` gerado automaticamente no formato `YYYYMM` + 6 dígitos aleatórios
@@ -30,15 +46,9 @@ O **Evento** é a entidade raiz do ciclo operacional do Veniti. Representa o inc
 - Pode ter zero ou mais `Atendimentos` vinculados
 - Evento `AttendanceCreated` propagado via Observer (`SplSubject`)
 
-## Status States
+---
 
-| Status | Descrição |
-|---|---|
-| `ABERTO` | Evento ativo — atendimentos podem ser criados |
-| `FINALIZADO` | Todos os atendimentos concluídos |
-| `CANCELADO` | Evento cancelado sem execução |
-
-## Business Rules
+## Regras de Negócio
 
 - Um Evento representa **o incidente** — pode exigir múltiplos tipos de serviço (ex: reboque + assistência médica no mesmo evento)
 - Cada serviço distinto é modelado como um **Atendimento** separado dentro do mesmo Evento
@@ -50,7 +60,15 @@ O **Evento** é a entidade raiz do ciclo operacional do Veniti. Representa o inc
 - O Observer pattern (`SplSubject`) é implementado — mudanças no Evento notificam listeners registrados
 - O método `generate_protocol()` em `src/Models/Eventos.php` garante unicidade do protocolo
 
-## Edge Cases
+## Estados
+
+| Status | Descrição |
+|---|---|
+| `ABERTO` | Evento ativo — atendimentos podem ser criados |
+| `FINALIZADO` | Todos os atendimentos concluídos |
+| `CANCELADO` | Evento cancelado sem execução |
+
+## Casos de Borda
 
 - Evento criado sem beneficiário identificado (beneficiário não localizado nas bases)
 - Evento duplicado para o mesmo beneficiário no mesmo momento (double-click ou retry)
@@ -59,7 +77,9 @@ O **Evento** é a entidade raiz do ciclo operacional do Veniti. Representa o inc
 - Evento com múltiplos atendimentos onde um é finalizado e outro é cancelado — qual o status final do Evento?
 - Tipo de evento não mapeado para nenhum tipo de serviço disponível no plano
 
-## QA Notes
+---
+
+## Notas de QA
 
 - **Risco:** O painel lista "Eventos sem atendimentos" — possível gap de atendimento não monitorado ativamente (SLA breach)
 - **Risco:** Protocolo é gerado com componente aleatório — verificar se há garantia de unicidade em concorrência alta
@@ -67,7 +87,7 @@ O **Evento** é a entidade raiz do ciclo operacional do Veniti. Representa o inc
 - **Validation gap:** Não está claro se o sistema valida cobertura do plano antes de criar o Evento ou somente ao criar o Atendimento
 - **Edge case crítico:** Evento com `data_agendamento` → cronjob processa corretamente se o sistema estiver indisponível no horário?
 
-## Dependencies
+## Dependências
 
 - **Modelo**: `src/Models/Eventos.php` (SplSubject, generate_protocol)
 - **Portal**: `html/assistencia/operacao/eventos.php`
@@ -75,12 +95,12 @@ O **Evento** é a entidade raiz do ciclo operacional do Veniti. Representa o inc
 - **Banco**: tabelas `eventos`, `tipos_eventos`
 - **Observer**: `src/Domain/Attendance/Events/AttendanceCreated`
 
-## Related Flows
+## Flows Relacionados
 
 - [[atendimento-lifecycle]]
 - [[fluxo-atendimento-completo]]
 
-## Related Features
+## Features Relacionadas
 
 - [[criacao-atendimento]]
 - [[vinculo-plano-beneficiario]]

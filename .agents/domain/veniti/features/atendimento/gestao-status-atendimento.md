@@ -1,10 +1,25 @@
+---
+type: feature
+module: atendimento
+layer: feature
+related:
+  - fluxo-atendimento-completo
+  - criacao-atendimento
+  - ciclo-vida-acionamento
+  - solicitacao-reembolso
+---
+
 # Gestão de Status do Atendimento
 
-## Description
+> Controla o ciclo de vida de um atendimento através de transições de status.
+
+## Descrição
 
 Controla o ciclo de vida de um atendimento através de transições de status. O status reflete a situação operacional atual do serviço e determina quais ações estão disponíveis para cada perfil de usuário (operação interna, cliente, prestador).
 
-## Inputs
+---
+
+## Entradas
 
 | Campo | Descrição |
 |---|---|
@@ -13,7 +28,7 @@ Controla o ciclo de vida de um atendimento através de transições de status. O
 | `obs` | Observação/justificativa da mudança (obrigatória em alguns estados) |
 | `numero_bo` | Boletim de ocorrência (obrigatório para NEGADO em alguns casos) |
 
-## Outputs
+## Saídas
 
 - Status atualizado na tabela `atendimentos`
 - Registro no `log` de auditoria com usuário e timestamp
@@ -22,7 +37,20 @@ Controla o ciclo de vida de um atendimento através de transições de status. O
 - Evento enviado ao TimescaleDB para histórico temporal
 - Atualização refletida em tempo real nos dashboards via WebSocket (Pusher)
 
-## Status States
+---
+
+## Regras de Negócio
+
+- Somente usuários com permissão de operação podem alterar o status
+- Transições de status geram entrada obrigatória no log de auditoria
+- O status `NEGADO` normalmente exige justificativa via campo `obs`
+- Um atendimento `FINALIZADO` não pode voltar para estados anteriores
+- O status `EMBUSCA` pode ser ativado quando o acionamento é aceito pelo prestador — **comportamento não confirmado**; verificar se ocorre automaticamente ou requer ação manual, e se se aplica a todos os tipos de atendimento ou apenas ao tipo Assistência
+- O campo `refund_status` controla a situação do reembolso vinculado, independente do status do atendimento
+- Atendimentos com `bloquear_acionamento = true` ficam em `ABERTO` indefinidamente até liberação manual
+- Observadores (`ObserverChangeService`) são disparados em toda mudança de status para notificações externas
+
+## Estados
 
 O fluxo de status varia conforme o subtipo do atendimento. Os fluxos abaixo descrevem o comportamento observado na UI para atendimentos do tipo **Assistência**:
 
@@ -57,18 +85,7 @@ ABERTO → AGUARDANDO ACEITE → ACEITO → ORIGEM → FINALIZADO
 | `NAO RECUPERADO` | Roubo/Furto (não confirmado) | Encerrado sem recuperação |
 | `VALIDACAO` | Não confirmado | Atendimento em análise interna |
 
-## Business Rules
-
-- Somente usuários com permissão de operação podem alterar o status
-- Transições de status geram entrada obrigatória no log de auditoria
-- O status `NEGADO` normalmente exige justificativa via campo `obs`
-- Um atendimento `FINALIZADO` não pode voltar para estados anteriores
-- O status `EMBUSCA` pode ser ativado quando o acionamento é aceito pelo prestador — **comportamento não confirmado**; verificar se ocorre automaticamente ou requer ação manual, e se se aplica a todos os tipos de atendimento ou apenas ao tipo Assistência
-- O campo `refund_status` controla a situação do reembolso vinculado, independente do status do atendimento
-- Atendimentos com `bloquear_acionamento = true` ficam em `ABERTO` indefinidamente até liberação manual
-- Observadores (`ObserverChangeService`) são disparados em toda mudança de status para notificações externas
-
-## Edge Cases
+## Casos de Borda
 
 - Tentar finalizar um atendimento sem acionamento vinculado
 - Cancelamento após o prestador já ter chegado ao local (`ORIGEM`)
@@ -76,7 +93,9 @@ ABERTO → AGUARDANDO ACEITE → ACEITO → ORIGEM → FINALIZADO
 - Mudança de status por dois operadores simultaneamente (race condition)
 - Atendimento em `VALIDACAO` sem resolução por tempo prolongado
 
-## Dependencies
+---
+
+## Dependências
 
 - **Modelos**: `src/Models/Atendimento.php`, `src/Observers/ObserverChangeService.php`
 - **Notificações**: `src/Models/NotificacaoCliente.php`, `src/Models/NotificacaoCCO.php`
@@ -84,11 +103,11 @@ ABERTO → AGUARDANDO ACEITE → ACEITO → ORIGEM → FINALIZADO
 - **Real-time**: `src/Helpers/WebSocket.php` (Pusher)
 - **Integrações**: `src/Integracoes/AlteracoesAtendimento/` (notifica sistemas externos como Agiliza, MaxPar)
 
-## Related Flows
+## Flows Relacionados
 
 - [[fluxo-atendimento-completo]]
 
-## Related Features
+## Features Relacionadas
 
 - [[criacao-atendimento]]
 - [[ciclo-vida-acionamento]]

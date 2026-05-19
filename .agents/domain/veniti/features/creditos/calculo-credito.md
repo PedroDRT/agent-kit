@@ -1,10 +1,25 @@
+---
+type: feature
+module: creditos
+layer: feature
+related:
+  - fluxo-calculo-credito
+  - fluxo-atendimento-completo
+  - ciclo-vida-acionamento
+  - processamento-pagamento-reembolso
+---
+
 # Cálculo de Crédito
 
-## Description
+> Sistema responsável por calcular o valor de crédito ou débito gerado por um atendimento finalizado, usando padrão Strategy com múltiplos métodos de cálculo configuráveis por plano.
+
+## Descrição
 
 Sistema responsável por calcular o valor de crédito ou débito gerado por um atendimento finalizado. O cálculo determina quanto o cliente (seguradora) deve ao Veniti pelo serviço prestado, ou quanto deve ser reembolsado em casos de cancelamento. Usa padrão Strategy com múltiplos métodos de cálculo configuráveis por plano.
 
-## Inputs
+---
+
+## Entradas
 
 | Parâmetro | Origem | Descrição |
 |---|---|---|
@@ -19,14 +34,28 @@ Sistema responsável por calcular o valor de crédito ou débito gerado por um a
 | `id_plano` | Atendimento | Plano do beneficiário |
 | `metodo_calculo` | Plano | Estratégia de cálculo configurada |
 
-## Outputs
+## Saídas
 
 - Registro de crédito/débito criado na tabela `clientes_contratos_creditos`
 - Valor disponível no extrato de créditos do cliente (`/cliente/creditos/`)
 - Relatório de métricas atualizado (`CalcularMetricas`)
 - Disponível na listagem interna de créditos (`/assistencia/creditos/`)
 
-## Calculation Methods (Strategy Pattern)
+---
+
+## Regras de Negócio
+
+- O método de cálculo é configurado por plano (`id_plano`) e pode variar por tipo de serviço
+- Valores podem ser **positivos** (crédito — cliente deve pagar) ou **negativos** (débito — Veniti deve reembolsar)
+- `CalcularValorCreditoSocorreAe.php` é uma variante especializada para a marca "Socorre A&E"
+- `MetodoCalculoResolver.php` determina qual estratégia usar com base na configuração do plano
+- `MetodoCalculoRegister.php` registra todas as estratégias disponíveis (padrão Registry Pattern)
+- Excedente de km (`excessPlanFees`) é calculado separadamente e somado ao crédito
+- O cálculo é disparado automaticamente após o acionamento entrar em status `FINALIZADO`
+- Créditos podem ser listados e filtrados via `ListarCreditos.php`
+- Métricas de faturamento consolidadas via `CalcularMetricas.php`
+
+## Métodos de Cálculo (Strategy Pattern)
 
 ### ValorAtendimento (por atendimento)
 - Valor fixo por tipo de serviço, independente da distância
@@ -41,18 +70,6 @@ Sistema responsável por calcular o valor de crédito ou débito gerado por um a
 - Valor definido manualmente pela operação
 - Usado em casos excepcionais ou negociações especiais
 
-## Business Rules
-
-- O método de cálculo é configurado por plano (`id_plano`) e pode variar por tipo de serviço
-- Valores podem ser **positivos** (crédito — cliente deve pagar) ou **negativos** (débito — Veniti deve reembolsar)
-- `CalcularValorCreditoSocorreAe.php` é uma variante especializada para a marca "Socorre A&E"
-- `MetodoCalculoResolver.php` determina qual estratégia usar com base na configuração do plano
-- `MetodoCalculoRegister.php` registra todas as estratégias disponíveis (padrão Registry Pattern)
-- Excedente de km (`excessPlanFees`) é calculado separadamente e somado ao crédito
-- O cálculo é disparado automaticamente após o acionamento entrar em status `FINALIZADO`
-- Créditos podem ser listados e filtrados via `ListarCreditos.php`
-- Métricas de faturamento consolidadas via `CalcularMetricas.php`
-
 ## Use Cases
 
 | Arquivo | Responsabilidade |
@@ -64,34 +81,6 @@ Sistema responsável por calcular o valor de crédito ou débito gerado por um a
 | `src/UseCases/MetodoCalculo/ValorAtendimento.php` | Estratégia por atendimento |
 | `src/UseCases/MetodoCalculo/ValorTabela.php` | Estratégia por tabela |
 | `src/UseCases/MetodoCalculo/ValorManual.php` | Estratégia manual |
-
-## Edge Cases
-
-- Atendimento finalizado sem acionamento vinculado (cálculo não disparado)
-- Plano sem método de cálculo configurado para o tipo de serviço
-- `km_total` zerado ou negativo (erro de geolocalização no campo)
-- Tarifa desatualizada no momento do cálculo (plano alterado após acionamento criado)
-- Crédito gerado duplicado por chamada dupla do trigger de finalização
-- Excedente de km para beneficiário que não autorizou pagamento
-
-## Dependencies
-
-- **Use Cases**: `src/UseCases/` (todos os arquivos de cálculo)
-- **Modelos**: `src/Models/Acionamento.php`, `src/Models/Creditos.php`
-- **Portais**: `html/assistencia/creditos/`, `html/cliente/creditos/`
-- **Banco**: `clientes_contratos_creditos`, `clientes_planos`
-
-## Related Flows
-
-- [[fluxo-calculo-credito]]
-- [[fluxo-atendimento-completo]]
-
-## Related Features
-
-- [[ciclo-vida-acionamento]]
-- [[processamento-pagamento-reembolso]]
-
----
 
 ## Impacto em Outros Módulos
 
@@ -198,3 +187,31 @@ O cliente (seguradora) visualiza seus créditos em `/cliente/creditos/` (READ-ON
 | `tipo_tarifa` | INT | Tipo de tarifa aplicada |
 | `km_saida` | INT | KM de saída da base |
 | `qtd` | DECIMAL(10,2) | Quantidade para cálculo por tarifa |
+
+---
+
+## Casos de Borda
+
+- Atendimento finalizado sem acionamento vinculado (cálculo não disparado)
+- Plano sem método de cálculo configurado para o tipo de serviço
+- `km_total` zerado ou negativo (erro de geolocalização no campo)
+- Tarifa desatualizada no momento do cálculo (plano alterado após acionamento criado)
+- Crédito gerado duplicado por chamada dupla do trigger de finalização
+- Excedente de km para beneficiário que não autorizou pagamento
+
+## Dependências
+
+- **Use Cases**: `src/UseCases/` (todos os arquivos de cálculo)
+- **Modelos**: `src/Models/Acionamento.php`, `src/Models/Creditos.php`
+- **Portais**: `html/assistencia/creditos/`, `html/cliente/creditos/`
+- **Banco**: `clientes_contratos_creditos`, `clientes_planos`
+
+## Flows Relacionados
+
+- [[fluxo-calculo-credito]]
+- [[fluxo-atendimento-completo]]
+
+## Features Relacionadas
+
+- [[ciclo-vida-acionamento]]
+- [[processamento-pagamento-reembolso]]

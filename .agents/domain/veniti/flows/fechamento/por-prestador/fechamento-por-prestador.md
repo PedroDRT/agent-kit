@@ -1,15 +1,30 @@
+---
+type: flow
+module: fechamento
+layer: flow
+related:
+  - fechamento-por-prestador
+  - agrupamento-lote
+  - execucao-servico
+  - faturamento-lote
+  - fluxo-calculo-credito
+  - atendimento-lifecycle
+---
+
 # Flow — Fechamento Financeiro por Prestador (Negociação Bilateral)
 
-## Description
+> Descreve o processo de encerramento financeiro entre o Veniti e o Prestador, com agrupamento em lote, negociação bilateral e agendamento de pagamento.
+
+## Descrição
 
 Descreve o processo de encerramento financeiro entre o Veniti (Assistência) e o Prestador de serviço. A Assistência agrupa os acionamentos finalizados em um lote, propõe valores, negocia bilateralmente com o prestador e agenda o pagamento.
 
-**Portais:** `/assistencia/faturamento/prestador/` e `/prestador/fechamento/`  
+**Portais:** `/assistencia/faturamento/prestador/` e `/prestador/fechamento/`
 **Atores:** Operação financeira (Assistência) + Prestador
 
 ---
 
-## FLUXO B: Fechamento com o Prestador (Negociação Bilateral)
+## Fluxo
 
 ### B1. Identificação de Acionamentos Faturáveis
 
@@ -67,14 +82,14 @@ Descreve o processo de encerramento financeiro entre o Veniti (Assistência) e o
 
 ---
 
-## Entry Points
+## Pontos de Entrada
 
 | Portal | Ator | Trigger |
 |---|---|---|
 | `/assistencia/faturamento/prestador/` | Operação financeira | Criação de lote para prestador |
 | `/prestador/fechamento/` | Prestador | Revisão de proposta recebida |
 
-## Exit Points
+## Pontos de Saída
 
 | Saída | Condição |
 |---|---|
@@ -82,7 +97,7 @@ Descreve o processo de encerramento financeiro entre o Veniti (Assistência) e o
 | Lote `RECUSADO` | Negociação sem acordo — acionamentos retornam ao pool |
 | Lote `CANCELADO` | Cancelamento manual pela operação |
 
-## Variations
+## Variações
 
 ### Múltiplos Lotes por Prestador no Período
 
@@ -97,7 +112,7 @@ Descreve o processo de encerramento financeiro entre o Veniti (Assistência) e o
 
 ---
 
-## QA Notes
+## Notas de QA
 
 - **Risco crítico:** O processo de negociação bilateral (B3→B5) pode entrar em loop — há limite de rounds de negociação?
 - **Risco:** Acionamento `FINALIZADO` durante o processamento do lote — incluído ou excluído? Lock de concorrência necessário
@@ -107,14 +122,8 @@ Descreve o processo de encerramento financeiro entre o Veniti (Assistência) e o
 - **Risco de auditoria:** Todas as transições de status na negociação bilateral devem ter registro de usuário + timestamp — verificar completude do log
 - **Edge case:** Prestador sem conta bancária cadastrada no momento do agendamento de pagamento
 
-## Related Features
+## Features Relacionadas
 
 - [[fechamento-por-prestador]]
 - [[agrupamento-lote]]
 - [[execucao-servico]]
-
-## Related Flows
-
-- [[faturamento-lote]]
-- [[fluxo-calculo-credito]]
-- [[atendimento-lifecycle]]

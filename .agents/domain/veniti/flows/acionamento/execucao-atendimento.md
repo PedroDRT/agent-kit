@@ -1,10 +1,29 @@
+---
+type: flow
+module: acionamento
+layer: flow
+related:
+  - execucao-servico
+  - ciclo-vida-acionamento
+  - dispatch-automatico
+  - gestao-status-atendimento
+  - calculo-credito
+  - fluxo-despacho-prestador
+  - atendimento-lifecycle
+  - faturamento-lote
+---
+
 # Execução do Atendimento (Perspectiva do Prestador)
 
-## Description
+> Descreve o fluxo de execução de um serviço de assistência do ponto de vista do prestador — desde o recebimento da notificação até a finalização em campo.
+
+## Descrição
 
 Descreve o fluxo de execução de um serviço de assistência do ponto de vista do prestador — desde o recebimento da notificação até a finalização em campo. Este fluxo ocorre integralmente no portal Prestador (`/prestador/`) e é o responsável pela progressão de status que alimenta os módulos financeiros posteriores.
 
-## Steps
+---
+
+## Fluxo
 
 ### 1. Recebimento da Notificação
 - **Ator:** Prestador (sistema)
@@ -88,12 +107,14 @@ Descreve o fluxo de execução de um serviço de assistência do ponto de vista 
 - **Visível em:** `/prestador/servicos/` (histórico somente leitura)
 - **Próximo passo:** Inclusão em Lote → [[faturamento-lote]]
 
-## Entry Points
+---
+
+## Pontos de Entrada
 
 - Notificação SMS/push recebida pelo prestador
 - Acesso manual ao painel `/prestador/acompanhamento/` com filtro de data/protocolo
 
-## Exit Points
+## Pontos de Saída
 
 | Saída | Status Final | Consequência |
 |---|---|---|
@@ -102,7 +123,9 @@ Descreve o fluxo de execução de um serviço de assistência do ponto de vista 
 | Sem resposta | `TEMPO EXPIROU` / `NAO ATENDEU` | Novo prestador acionado |
 | Cancelamento operação | `CANCELADO` | Serviço encerrado sem faturamento |
 
-## Atendimento Extended Status (além de FINALIZADO)
+## Variações
+
+### Atendimento Extended Status (além de FINALIZADO)
 
 | Status | Gatilho | Significado |
 |---|---|---|
@@ -115,7 +138,9 @@ Descreve o fluxo de execução de um serviço de assistência do ponto de vista 
 | `NPS_PENDENTE` | Sistema | Aguardando resposta da pesquisa de satisfação |
 | `CONTATO_BENEFICIARIO` | Operação | Tentativa de contato com beneficiário |
 
-## QA Notes
+---
+
+## Notas de QA
 
 - **Risco crítico:** Sequência de status validada apenas no frontend (`changeSteps()` em JS) — o backend aceita transições inválidas diretamente via API?
 - **Risco:** GPS pode falhar silenciosamente (dispositivo sem sinal) sem alertar a operação
@@ -126,16 +151,10 @@ Descreve o fluxo de execução de um serviço de assistência do ponto de vista 
 - **Edge case:** Prestador finaliza atendimento correto mas com veículo errado (`dispatch_vehicle_license_plate` diferente do veículo que executou)
 - **Risco de consistência:** `NPS_PENDENTE` — o que acontece se o beneficiário nunca responde? O status do atendimento fica preso?
 
-## Related Features
+## Features Relacionadas
 
 - [[execucao-servico]]
 - [[ciclo-vida-acionamento]]
 - [[dispatch-automatico]]
 - [[gestao-status-atendimento]]
 - [[calculo-credito]]
-
-## Related Flows
-
-- [[fluxo-despacho-prestador]]
-- [[atendimento-lifecycle]]
-- [[faturamento-lote]]

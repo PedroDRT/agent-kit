@@ -1,6 +1,25 @@
+---
+type: flow
+module: atendimento
+layer: flow
+related:
+  - vinculo-plano-beneficiario
+  - gestao-evento
+  - criacao-atendimento
+  - gestao-status-atendimento
+  - ciclo-vida-acionamento
+  - dispatch-automatico
+  - execucao-servico
+  - calculo-credito
+  - fechamento-financeiro
+  - agrupamento-lote
+---
+
 # Atendimento Lifecycle (Ciclo de Vida Completo)
 
-## Description
+> Documenta o ciclo de vida end-to-end de um atendimento de assistência no Veniti — desde o cadastro do beneficiário até o fechamento financeiro.
+
+## Descrição
 
 Documenta o ciclo de vida end-to-end de um atendimento de assistência no Veniti — desde o cadastro do beneficiário até o fechamento financeiro. Este é o **fluxo central e mais crítico** do sistema, envolvendo todos os módulos e todos os atores.
 
@@ -9,7 +28,7 @@ Documenta o ciclo de vida end-to-end de um atendimento de assistência no Veniti
 
 ---
 
-## Full Lifecycle
+## Fluxo
 
 ```
 [Pré-requisitos]                     [Operação]                           [Execução]                    [Financeiro]
@@ -31,10 +50,6 @@ Vínculo Plano/Veículo/Pet           Acionamento do Prestador         Execuçã
                                                                    Contas a Pagar
 ```
 
----
-
-## Steps
-
 ### FASE 1 — PRÉ-REQUISITOS (Setup)
 
 #### Passo 1: Cadastro do Beneficiário
@@ -54,8 +69,6 @@ Vínculo Plano/Veículo/Pet           Acionamento do Prestador         Execuçã
 - **Define:** Quais serviços o beneficiário pode usar, limites, tarifas
 - **Feature:** [[vinculo-plano-beneficiario]]
 
----
-
 ### FASE 2 — REGISTRO DO INCIDENTE
 
 #### Passo 4: Criação do Evento
@@ -74,8 +87,6 @@ Vínculo Plano/Veículo/Pet           Acionamento do Prestador         Execuçã
 - **Feature:** [[criacao-atendimento]]
 - **Nota:** Um único Evento pode gerar múltiplos Atendimentos (ex: reboque + troca de pneu)
 
----
-
 ### FASE 3 — ACIONAMENTO DO PRESTADOR
 
 #### Passo 6: Seleção e Acionamento do Prestador
@@ -92,8 +103,6 @@ Vínculo Plano/Veículo/Pet           Acionamento do Prestador         Execuçã
 - **Opção B:** Recusa → `RECUSADO`; próximo prestador é acionado (volta ao Passo 6)
 - **Opção C:** Timeout → `TEMPO EXPIROU`; cronjob reabre busca
 - **Feature:** [[execucao-servico]]
-
----
 
 ### FASE 4 — EXECUÇÃO EM CAMPO
 
@@ -114,8 +123,6 @@ Vínculo Plano/Veículo/Pet           Acionamento do Prestador         Execuçã
 - **Trigger automático:** `CalcularValorCredito` disparado imediatamente
 - **Feature:** [[gestao-status-atendimento]], [[calculo-credito]]
 
----
-
 ### FASE 5 — FECHAMENTO FINANCEIRO
 
 #### Passo 10: Fechamento e Negociação de Tarifas
@@ -125,7 +132,6 @@ Vínculo Plano/Veículo/Pet           Acionamento do Prestador         Execuçã
 - **Ação:** Assistência inicia fechamento do período; prestador revisa e pode apresentar contraproposta de valores
 - **Negociação:** Status: `ABERTO → EM NEGOCIAÇÃO → CONTRAPROPOSTA → ACEITO`
 - **Feature:** [[fechamento-financeiro]]
-- **Flow:** [[fechamento-financeiro]]
 
 #### Passo 11: Agrupamento em Lote
 - **Ator:** Assistência (operação financeira)
@@ -144,7 +150,7 @@ Vínculo Plano/Veículo/Pet           Acionamento do Prestador         Execuçã
 
 ---
 
-## Entry Points
+## Pontos de Entrada
 
 | Ponto de Entrada | Ator | Portal |
 |---|---|---|
@@ -153,7 +159,7 @@ Vínculo Plano/Veículo/Pet           Acionamento do Prestador         Execuçã
 | Criação via API externa | Sistema externo | `/extensao/create_attendance.php` |
 | Acionamento manual | Operação | `/assistencia/operacao/acionamento.php` |
 
-## Exit Points
+## Pontos de Saída
 
 | Saída | Condição |
 |---|---|
@@ -163,7 +169,7 @@ Vínculo Plano/Veículo/Pet           Acionamento do Prestador         Execuçã
 | Reembolso `PAGO` | Alternativa ao acionamento — [[fluxo-reembolso-completo]] |
 | Acionamento sem prestador | Sem elegíveis disponíveis — intervenção manual necessária |
 
-## Variations
+## Variações
 
 ### Via Reembolso (sem prestador)
 - No Passo 6: sem prestadores disponíveis ou beneficiário já custeou serviço
@@ -182,7 +188,9 @@ Vínculo Plano/Veículo/Pet           Acionamento do Prestador         Execuçã
 - Em qualquer ponto da Fase 3-4: operação coloca atendimento em espera
 - Acionamento não pode avançar até liberação manual
 
-## QA Notes
+---
+
+## Notas de QA
 
 - **Risco crítico (Passo 3→4):** Validação de cobertura do plano — o sistema verifica cobertura antes de criar o Evento ou apenas ao criar o Atendimento? Gap pode causar atendimentos indevidos
 - **Risco (Passo 6→7):** Race condition no broadcast — dois prestadores podem aceitar simultaneamente? Verificar atomicidade da operação de aceite
@@ -192,7 +200,7 @@ Vínculo Plano/Veículo/Pet           Acionamento do Prestador         Execuçã
 - **Validation gap (Passo 5):** Limite de uso do plano (ex: 2 reboques/ano) — validado em qual passo exatamente?
 - **Comportamento unclear:** Quando o Evento fecha automaticamente vs. manual após todos os atendimentos finalizarem
 
-## Related Features
+## Features Relacionadas
 
 - [[vinculo-plano-beneficiario]]
 - [[gestao-evento]]

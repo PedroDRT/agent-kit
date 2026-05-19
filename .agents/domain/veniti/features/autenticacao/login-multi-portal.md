@@ -1,18 +1,32 @@
+---
+type: feature
+module: autenticacao
+layer: feature
+related:
+  - fluxo-login
+  - recuperacao-senha
+  - cadastro-beneficiario
+---
+
 # Login Multi-Portal
 
-## Description
+> O sistema Veniti opera com três portais distintos, cada um com seu próprio processo de autenticação e contexto de sessão.
+
+## Descrição
 
 O sistema Veniti opera com três portais distintos, cada um com seu próprio processo de autenticação e contexto de sessão. O roteamento entre portais é feito por subdomínio (tenant routing). Cada portal possui identidade visual própria carregada dinamicamente do tenant.
 
-## Portais e URLs
+---
+
+## Entradas
+
+### Portais e URLs
 
 | Portal | Subdomínio | Path | Usuário alvo |
 |---|---|---|---|
 | **Assistência** | `assistencia.{tenant}.veniti.com.br` | `/assistencia/login/` | Operadores internos, admins |
 | **Cliente** | `{tenant}.veniti.com.br` | `/cliente/login/` | Empresas clientes (seguradoras) |
 | **Prestador** | `prestador.{tenant}.veniti.com.br` | `/prestador/login/` | Prestadores de serviço |
-
-## Inputs
 
 ### Login Principal
 
@@ -34,7 +48,7 @@ O sistema Veniti opera com três portais distintos, cada um com seu próprio pro
 |---|---|
 | `hash` URL | Hash de sessão para login automático (gerado internamente) |
 
-## Outputs
+## Saídas
 
 - Sessão PHP criada com variáveis:
   - `AUTH_USER_ID_VENITI` — ID do tenant (empresa)
@@ -43,7 +57,9 @@ O sistema Veniti opera com três portais distintos, cada um com seu próprio pro
 - Logo e CSS customizados carregados do AWS S3 para o tenant
 - Registro de último acesso no banco
 
-## Business Rules
+---
+
+## Regras de Negócio
 
 - O CNPJ/CPF identifica o tenant — deve estar cadastrado como cliente ativo
 - O subdomínio do HTTP_HOST determina qual portal é exibido
@@ -57,7 +73,7 @@ O sistema Veniti opera com três portais distintos, cada um com seu próprio pro
 - Cada portal tem arquivos de login independentes (`index.php`, `index2.php`, `index3.php`) para variações de layout
 - Contas inativas ou bloqueadas são rejeitadas com mensagem genérica
 
-## Edge Cases
+## Casos de Borda
 
 - Usuário tenta acessar portal incorreto para seu perfil
 - Tenant com subdomínio não configurado (host não reconhecido)
@@ -68,7 +84,9 @@ O sistema Veniti opera com três portais distintos, cada um com seu próprio pro
 - reCAPTCHA falha em ambiente de teste (token inválido)
 - Sessão corrompida após timeout do servidor
 
-## Dependencies
+---
+
+## Dependências
 
 - **Auth handler**: `html/assistencia/login/__acoes.php`, `html/cliente/login/__acoes.php`, `html/prestador/login/__acoes.php`
 - **Sessão**: PHP sessions + Redis (caching/sessões)
@@ -77,11 +95,11 @@ O sistema Veniti opera com três portais distintos, cada um com seu próprio pro
 - **Storage**: AWS S3 (logos e CSS customizados por tenant)
 - **Banco**: tabelas de usuários por portal (`clientes_usuarios`, `prestadores_usuarios`, etc.)
 
-## Related Flows
+## Flows Relacionados
 
 - [[fluxo-login]]
 
-## Related Features
+## Features Relacionadas
 
 - [[recuperacao-senha]]
 - [[cadastro-beneficiario]]

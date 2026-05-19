@@ -1,10 +1,27 @@
+---
+type: feature
+module: acionamento
+layer: feature
+related:
+  - fluxo-despacho-prestador
+  - fluxo-atendimento-completo
+  - dispatch-automatico
+  - gestao-status-atendimento
+  - calculo-credito
+  - gestao-prestador
+---
+
 # Ciclo de Vida do Acionamento
 
-## Description
+> Um acionamento representa a atribuição de um atendimento a um prestador específico, sendo a ponte operacional entre a demanda do beneficiário e a execução do serviço em campo.
+
+## Descrição
 
 Um acionamento (dispatch) representa a atribuição de um atendimento a um prestador de serviço específico. É a ponte operacional entre a demanda do beneficiário e a execução do serviço em campo. Um atendimento pode ter múltiplos acionamentos ao longo do seu ciclo (recusas, cancelamentos, novas tentativas).
 
-## Inputs
+---
+
+## Entradas
 
 | Campo | Tipo | Descrição |
 |---|---|---|
@@ -20,7 +37,7 @@ Um acionamento (dispatch) representa a atribuição de um atendimento a um prest
 | `acionamento_tempo_chegada` | integer | Tempo estimado de chegada (min) |
 | `acionamento_automatico` | boolean | Se foi criado pelo sistema automático |
 
-## Outputs
+## Saídas
 
 - Registro criado na tabela `atendimentos_dispatch`
 - Notificação push/SMS enviada ao prestador
@@ -29,7 +46,21 @@ Um acionamento (dispatch) representa a atribuição de um atendimento a um prest
 - `dispatch_public_id` gerado para rastreamento externo
 - Informações de veículo e técnico retornadas ao portal do cliente
 
-## Status States
+---
+
+## Regras de Negócio
+
+- Somente atendimentos com status `ABERTO` e `bloquear_acionamento = false` podem ser acionados
+- O campo `beneficiario_pagara_excedente` define se o excedente de km é cobrado ao beneficiário
+- Timestamps de cada transição são registrados: `TAceite`, `TOrigem`, `TDestino`, `TFinalizado`, `TRecusa`
+- Cronjob `auto_expires_dispatch.php` expira automaticamente acionamentos sem resposta no tempo limite
+- Dois métodos de despacho automático existem: **Bouncing** (sequencial) e **Broadcast** (simultâneo para múltiplos prestadores)
+- O campo `excessPlanFees` armazena taxas de excedente do plano para cálculo posterior
+- Após `FINALIZADO`, o sistema dispara `CalcularValorCredito` para gerar o crédito/débito do cliente
+- `ObserverLogGeolocalization` registra a posição GPS do prestador em intervalos durante o serviço
+- O `dispatch_vehicle_license_plate` e `dispatch_technician_name` são capturados no momento do aceite
+
+## Estados
 
 > **Nota:** Estes são os status do **acionamento** (`atendimentos_dispatch`). O status do **atendimento** (`atendimentos`) segue fluxo paralelo e distinto — ver [[gestao-status-atendimento]].
 
@@ -57,19 +88,9 @@ Um acionamento (dispatch) representa a atribuição de um atendimento a um prest
 | `CANCELADO` | Acionamento cancelado pela operação |
 | `ACEITO POR OUTRO PRESTADOR` | Em modo broadcast, outro prestador aceitou primeiro |
 
-## Business Rules
+---
 
-- Somente atendimentos com status `ABERTO` e `bloquear_acionamento = false` podem ser acionados
-- O campo `beneficiario_pagara_excedente` define se o excedente de km é cobrado ao beneficiário
-- Timestamps de cada transição são registrados: `TAceite`, `TOrigem`, `TDestino`, `TFinalizado`, `TRecusa`
-- Cronjob `auto_expires_dispatch.php` expira automaticamente acionamentos sem resposta no tempo limite
-- Dois métodos de despacho automático existem: **Bouncing** (sequencial) e **Broadcast** (simultâneo para múltiplos prestadores)
-- O campo `excessPlanFees` armazena taxas de excedente do plano para cálculo posterior
-- Após `FINALIZADO`, o sistema dispara `CalcularValorCredito` para gerar o crédito/débito do cliente
-- `ObserverLogGeolocalization` registra a posição GPS do prestador em intervalos durante o serviço
-- O `dispatch_vehicle_license_plate` e `dispatch_technician_name` são capturados no momento do aceite
-
-## Edge Cases
+## Casos de Borda
 
 - Prestador aceita mas não se move para `ORIGEM` por tempo prolongado
 - Múltiplos acionamentos simultâneos para o mesmo atendimento (broadcast)
@@ -79,7 +100,7 @@ Um acionamento (dispatch) representa a atribuição de um atendimento a um prest
 - Acionamento gerado para atendimento já cancelado (race condition)
 - Beneficiário pagará excedente mas não autoriza previamente
 
-## Dependencies
+## Dependências
 
 - **Use Cases**: `src/UseCases/CalcularValorCredito.php`
 - **Modelos**: `src/Models/Acionamento.php`, `src/Models/MetodosAcionamentos.php`
@@ -89,12 +110,12 @@ Um acionamento (dispatch) representa a atribuição de um atendimento a um prest
 - **Geolocalização**: `src/Helpers/GeoGoogle.php`, `GeoHere.php`, `GeoTomTom.php`, `GeoOSRM.php`
 - **Banco**: tabelas `atendimentos_dispatch`, `prestadores`, `prestadores_viaturas`, `prestadores_bases`
 
-## Related Flows
+## Flows Relacionados
 
 - [[fluxo-despacho-prestador]]
 - [[fluxo-atendimento-completo]]
 
-## Related Features
+## Features Relacionadas
 
 - [[dispatch-automatico]]
 - [[gestao-status-atendimento]]

@@ -1,6 +1,19 @@
+---
+type: feature
+module: evento
+layer: feature
+related:
+  - atendimento-lifecycle
+  - cadastro-beneficiario
+  - gestao-evento
+  - calculo-credito
+---
+
 # Vínculo de Plano ao Beneficiário
 
-## Description
+> Processo de associação de um beneficiário a um plano contratado por um cliente, determinando quais serviços podem ser solicitados e como os créditos serão calculados.
+
+## Descrição
 
 Processo de associação de um beneficiário (pessoa física ou jurídica) a um plano contratado por um cliente (seguradora). O vínculo determina quais serviços o beneficiário pode solicitar, os limites de cobertura, e como os créditos serão calculados. Inclui também o vínculo de veículos e pets ao plano.
 
@@ -13,7 +26,9 @@ Cliente (Seguradora)
               └── Pets vinculados ao plano
 ```
 
-## Inputs
+---
+
+## Entradas
 
 ### Vínculo Beneficiário ↔ Plano
 
@@ -44,14 +59,16 @@ Cliente (Seguradora)
 | `data_vigencia_inicio` | date | Início cobertura |
 | `data_vigencia_fim` | date | Fim cobertura |
 
-## Outputs
+## Saídas
 
 - Registro em `clientes_beneficiarios` com `id_plano` ativo
 - Registros em `beneficiarios_veiculos_planos` e/ou `beneficiarios_pets_planos`
 - Beneficiário disponível para criação de Eventos com o plano vinculado
 - Créditos associados ao plano calculados conforme configuração (`per_tipo_veiculo`, `por_categorizacao_veiculo`)
 
-## Business Rules
+---
+
+## Regras de Negócio
 
 - Um beneficiário pode estar vinculado a **múltiplos planos** de **múltiplos clientes** (multi-tenant)
 - A cobertura é validada pela vigência do plano no momento da criação do Evento/Atendimento
@@ -62,7 +79,7 @@ Cliente (Seguradora)
 - Planos têm limitações por tipo de evento (`modal-register-limitation-event-type.php`) — ex: máximo de 2 reboques por ano
 - Dados do vínculo são cruzados com o cálculo de crédito em `src/UseCases/CalcularValorCredito.php`
 
-## Edge Cases
+## Casos de Borda
 
 - Vínculo criado com data de início no passado (cobertura retroativa)
 - Beneficiário solicita serviço com plano expirado (`data_vigencia_fim` no passado)
@@ -72,7 +89,9 @@ Cliente (Seguradora)
 - Importação em lote sobrepõe vínculos existentes (atualiza ou duplica?)
 - Pet de espécie não coberta pelo plano vinculado
 
-## QA Notes
+---
+
+## Notas de QA
 
 - **Risco crítico:** Validação de cobertura no momento do Evento — o sistema bloqueia criação ou apenas registra para análise posterior?
 - **Risco:** Limite de usos do plano (ex: 2 reboques/ano) — quando e onde é verificado? No Evento, no Atendimento, ou no Acionamento?
@@ -80,7 +99,7 @@ Cliente (Seguradora)
 - **Comportamento unclear:** Se um veículo é vinculado a dois planos diferentes, qual plano é usado na criação do Atendimento?
 - **Edge case:** Importação em lote com arquivo contendo beneficiários sem CPF/CNPJ válido — o sistema rejeita toda a linha ou ignora o campo?
 
-## Dependencies
+## Dependências
 
 - **Portais**: `html/assistencia/beneficiarios/` (cadastro e vínculo), `html/assistencia/planos/`
 - **Upload lote**: `html/assistencia/beneficiarios/__acoes_upload_beneficiarios.php`
@@ -88,11 +107,11 @@ Cliente (Seguradora)
 - **Banco**: `clientes_beneficiarios`, `beneficiarios_veiculos_planos`, `beneficiarios_pets_planos`, `clientes_planos`
 - **Crédito**: `src/UseCases/CalcularValorCredito.php`
 
-## Related Flows
+## Flows Relacionados
 
 - [[atendimento-lifecycle]]
 
-## Related Features
+## Features Relacionadas
 
 - [[cadastro-beneficiario]]
 - [[gestao-evento]]

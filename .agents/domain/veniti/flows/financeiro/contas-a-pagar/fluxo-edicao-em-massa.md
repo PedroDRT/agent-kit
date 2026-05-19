@@ -1,10 +1,25 @@
+---
+type: flow
+module: financeiro
+layer: flow
+related:
+  - edicao-em-massa
+  - faturamento-lote
+---
+
 # Fluxos — Edição em Massa de Contas a Pagar
 
-## Description
+> Descreve os fluxos de interação para execução de ações em lote na listagem de Contas a Pagar: Liquidar e Agendar títulos individualmente ou em grupo.
+
+## Descrição
 
 Descreve os fluxos de interação para execução de ações em lote na listagem de Contas a Pagar: Liquidar (título único e lote) e Agendar (1 ou múltiplos títulos). Todos os fluxos partem da listagem de Contas a Pagar no Portal Assistência e dependem de permissão de edição no perfil do usuário.
 
-## Fluxo 1 — Liquidar Título Único
+---
+
+## Fluxo
+
+### Fluxo 1 — Liquidar Título Único
 
 **Pré-condição:** Usuário autenticado com permissão de edição de contas a pagar; ao menos 1 título disponível na listagem
 
@@ -19,9 +34,7 @@ Descreve os fluxos de interação para execução de ações em lote na listagem
 
 **Estado final:** Título liquidado com data e valores registrados; barra flutuante ocultada; datatable atualizado
 
----
-
-## Fluxo 2 — Liquidar Múltiplos Títulos (Lote)
+### Fluxo 2 — Liquidar Múltiplos Títulos (Lote)
 
 **Pré-condição:** Usuário com permissão de edição; ao menos 2 títulos disponíveis na listagem
 
@@ -35,9 +48,7 @@ Descreve os fluxos de interação para execução de ações em lote na listagem
 
 **Estado final:** Todos os títulos selecionados liquidados com a mesma data; barra flutuante ocultada
 
----
-
-## Fluxo 3 — Agendar Pagamento (1 ou Múltiplos Títulos)
+### Fluxo 3 — Agendar Pagamento (1 ou Múltiplos Títulos)
 
 **Pré-condição:** Usuário com permissão de edição; ao menos 1 título disponível na listagem
 
@@ -50,9 +61,7 @@ Descreve os fluxos de interação para execução de ações em lote na listagem
 
 **Estado final:** Todos os títulos selecionados com a mesma data de agendamento; barra flutuante ocultada
 
----
-
-## Fluxo 4 — Cancelamento de Modal
+### Fluxo 4 — Cancelamento de Modal
 
 **Pré-condição:** Modal "Liquidar" ou "Agendar" aberto com 1 ou mais itens selecionados
 
@@ -64,14 +73,14 @@ Descreve os fluxos de interação para execução de ações em lote na listagem
 
 ---
 
-## Entry Points
+## Pontos de Entrada
 
 | Ponto | Ator | Trigger |
 |---|---|---|
 | Seleção via checkbox individual | Operação financeira | Clique no checkbox da linha |
 | Seleção via checkbox de cabeçalho | Operação financeira | Clique no "selecionar todos" do cabeçalho do datatable |
 
-## Exit Points
+## Pontos de Saída
 
 | Saída | Resultado |
 |---|---|
@@ -81,7 +90,9 @@ Descreve os fluxos de interação para execução de ações em lote na listagem
 | Modal cancelado | Nenhuma alteração; seleção preservada |
 | Paginação / filtro / ordenação | Seleção e barra flutuante limpas automaticamente |
 
-## Business Rules
+## Variações
+
+### Regras de Negócio
 
 - Barra flutuante aparece com ≥ 1 item selecionado e some quando nenhum está selecionado
 - Juros e Desconto são calculados automaticamente com base no Valor Pago; bloqueados para edição manual
@@ -89,11 +100,7 @@ Descreve os fluxos de interação para execução de ações em lote na listagem
 - Seleção não persiste ao paginar, filtrar ou ordenar
 - Permissão de edição de contas a pagar controla visibilidade e execução da feature inteira
 
-## Related Features
+## Features Relacionadas
 
 - [[edicao-em-massa]]
-- [[faturamento-lote]]
-
-## Related Flows
-
 - [[faturamento-lote]]

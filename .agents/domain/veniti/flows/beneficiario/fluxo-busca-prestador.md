@@ -1,10 +1,24 @@
+---
+type: flow
+module: beneficiario
+layer: flow
+related:
+  - portal-self-service-beneficiario
+  - cadastro-beneficiario
+  - dispatch-automatico
+---
+
 # Fluxo de Busca de Prestador
 
-## Description
+> Permite ao beneficiário localizar prestadores de serviço disponíveis em sua região através do portal self-service, usando geolocalização ou endereço informado.
+
+## Descrição
 
 Permite ao beneficiário localizar prestadores de serviço disponíveis em sua região através do portal self-service. Utiliza geolocalização do dispositivo ou endereço informado para exibir prestadores no mapa e listar suas informações de contato e cobertura.
 
-## Steps
+---
+
+## Fluxo
 
 ### 1. Acesso ao Portal do Beneficiário
 - **Ator**: Beneficiário
@@ -39,18 +53,20 @@ Permite ao beneficiário localizar prestadores de serviço disponíveis em sua r
 - **Ação**: Retorna ao portal para acompanhar atendimento ou completar reembolso
 - **Sistema**: Histórico de navegação preservado pelo token de sessão
 
-## Entry Points
+---
+
+## Pontos de Entrada
 
 - Link único recebido por SMS/e-mail: `https://{tenant}/beneficiario/a/?token=...`
 - A partir do portal de acompanhamento do atendimento
 
-## Exit Points
+## Pontos de Saída
 
 - **Prestador encontrado e contatado**: Beneficiário segue para atendimento autônomo → possível reembolso posterior
 - **Nenhum prestador encontrado**: Sistema exibe mensagem e sugere contato com a central
 - **Retorno ao portal**: Beneficiário volta ao fluxo de acompanhamento ou reembolso
 
-## Variations
+## Variações
 
 ### Busca por Endereço Manual
 - Beneficiário digita o endereço quando geolocalização do dispositivo não está disponível
@@ -64,7 +80,7 @@ Permite ao beneficiário localizar prestadores de serviço disponíveis em sua r
 - Mapa não carrega
 - Sistema exibe número de telefone da central como fallback
 
-## Related Features
+## Features Relacionadas
 
 - [[portal-self-service-beneficiario]]
 - [[cadastro-beneficiario]]

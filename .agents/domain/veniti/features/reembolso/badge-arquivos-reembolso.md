@@ -1,25 +1,39 @@
+---
+type: feature
+module: reembolso
+layer: feature
+related:
+  - link-reembolso
+---
+
 # Badge de Identificação de Arquivos do Beneficiário
 
-## Resumo
+> Na aba de Arquivos do reembolso, todos os arquivos enviados pelo beneficiário através do link do beneficiário são identificados com uma badge visual.
+
+## Descrição
 
 Na aba de **Arquivos** do reembolso, todos os arquivos enviados pelo beneficiário através do **link do beneficiário** são identificados com uma badge visual, indicando a origem do arquivo.
 
 ---
 
-## Comportamento
+## Entradas
+
+- Arquivo enviado via link do beneficiário (portal `/reembolso/`)
+- Arquivo enviado internamente pela operação (portal `/assistencia/reembolso/`)
+
+## Saídas
+
+- Badge com label **"BENEFICIÁRIO"** exibida junto ao arquivo na listagem da aba Arquivos
+- Arquivos enviados internamente não recebem badge
+
+---
+
+## Regras de Negócio
 
 - A badge é exibida na listagem de arquivos do reembolso, junto ao arquivo
 - Apenas arquivos enviados via **link do beneficiário** recebem a badge
 - Arquivos enviados internamente pela operação **não** recebem a badge
-- A badge exibe o label **"BENEFICIÁRIO"** (conforme screenshot do PDF)
-
----
-
-## Localização
-
-**Aba:** Arquivos (dentro do reembolso)
-
----
+- A badge exibe o label **"BENEFICIÁRIO"**
 
 ## Critérios de Aceitação
 

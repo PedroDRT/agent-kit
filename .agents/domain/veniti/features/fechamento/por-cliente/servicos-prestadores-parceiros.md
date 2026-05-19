@@ -1,8 +1,76 @@
+---
+type: feature
+module: fechamento
+layer: feature
+related:
+  - fechamento-financeiro
+  - agrupamento-lote
+  - calculo-credito
+---
+
 # Serviços de Prestadores Parceiros em Fechamento por Clientes
 
-## Resumo
+> Permite configurar a exibição e contabilização de atendimentos realizados por prestadores parceiros no fechamento por cliente.
+
+## Descrição
 
 Permite configurar, no contrato do cliente e por tipo de cobrança, a exibição e contabilização de atendimentos realizados por prestadores parceiros no fechamento por cliente. A configuração é feita via dois checkboxes com dependência hierárquica: "Exibir atendimentos de prestadores parceiros" e "Contabilizar valor de atendimento" (visível apenas quando o primeiro está habilitado). Inclui também nova coluna "Parceiro" (SIM/NÃO) nos datatables dos tipos de cobrança "Atendimento mais" e "Tabela de valor".
+
+---
+
+## Entradas
+
+### Novas Configurações (UI)
+
+**Localização:** Contrato do cliente > tipo de cobrança elegível ("Atendimento mais R$/%" ou "Tabela de valores")
+
+#### Checkbox 1: "Exibir atendimentos de prestadores parceiros"
+- **Tooltip:** "Ao habilitar esta configuração, o sistema passará a exibir no fechamento os atendimentos realizados por prestadores parceiros. Esses atendimentos serão apresentados com valor zerado, não impactando os cálculos financeiros."
+- **Comportamento quando habilitado:**
+  - Atendimentos de prestadores parceiros passam a ser exibidos no fechamento
+  - São apresentados com valor zerado
+  - Não impactam o valor total do lote
+
+#### Checkbox 2: "Contabilizar valor de atendimento"
+- **Visibilidade:** Só é exibido quando o checkbox 1 está habilitado
+- **Tooltip:** "Ao habilitar esta configuração, os atendimentos de prestadores parceiros terão seus valores calculados e considerados no fechamento, impactando o valor total."
+- **Comportamento quando habilitado:**
+  - Atendimentos de parceiros deixam de ter valor zerado
+  - Passam a ser contabilizados normalmente
+  - Seguem integralmente as regras do tipo de cobrança configurado
+
+#### Nova Coluna "Parceiro" nos Datatables
+- Presente nos datatables de "Atendimento mais" e "Tabela de valor" (Fechamento > Por Clientes > Detalhes)
+- Valores: SIM / NÃO
+- Oculta por padrão, habilitável via botão "Altere as colunas"
+- Quando habilitada, incluída nas exportações (XLS, CSV, PDF)
+- NÃO deve aparecer em outros tipos de cobrança
+
+## Saídas
+
+- Configuração persistida por tipo de cobrança no contrato do cliente
+- Fechamento exibe ou oculta atendimentos de parceiros conforme configuração
+- Coluna "Parceiro" disponível nos datatables elegíveis
+- Exportações (XLS, CSV, PDF) incluem coluna "Parceiro" quando habilitada
+
+---
+
+## Regras de Negócio
+
+### Regras Gerais (Matriz de Configuração)
+
+| Exibir | Contabilizar | Comportamento |
+|---|---|---|
+| ❌ | — (oculto) | Comportamento atual mantido — atendimentos de parceiros não aparecem |
+| ✅ | ❌ | Atendimentos aparecem com valor zerado, sem impacto no total |
+| ✅ | ✅ | Atendimentos aparecem com valor calculado, somados ao total, regras do tipo de cobrança aplicadas |
+
+- Tipos de cobrança elegíveis: apenas "ATENDIMENTOS MAIS" e "TABELA DE VALOR"
+- Ao desmarcar "Exibir atendimentos de prestadores parceiros", o checkbox "Contabilizar valor de atendimento" é automaticamente desmarcado e ocultado
+- A relação de parceria é por cliente, não é uma flag global do prestador (verificar em Negócio > Clientes > aba "Parceiros")
+- Cada tipo de cobrança tem configuração independente; podem coexistir no mesmo fechamento
+- Formatos de exportação XLS, CSV e PDF devem incluir a coluna "Parceiro" quando habilitada
+- Configuração afeta apenas fechamentos futuros (não há retroatividade)
 
 ## Critérios de Aceitação
 
@@ -15,81 +83,6 @@ Permite configurar, no contrato do cliente e por tipo de cobrança, a exibição
 7. Dado que o checkbox "Contabilizar valor de atendimento" esteja habilitado, quando o fechamento for processado, então os atendimentos de prestadores parceiros devem ser calculados e somados ao total do lote
 8. Dado que os atendimentos de parceiros estejam sendo contabilizados, quando o sistema aplicar as regras de cálculo, então deve utilizar as mesmas regras do tipo de cobrança aplicado
 9. Dado qualquer configuração não habilitada, quando o fechamento for processado, então o comportamento atual não deve ser impactado
-
-## Escopo de Teste
-
-- Configuração dos checkboxes no contrato do cliente (Negócio > Clientes > selecionar cliente > contrato > tipo de cobrança)
-- Dependência hierárquica entre os dois checkboxes (Exibir → Contabilizar)
-- Comportamento do fechamento por cliente (Fechamento > Por Clientes > Detalhes) nas 3 combinações:
-  - Não exibir (comportamento atual mantido)
-  - Exibir com valor zerado
-  - Exibir e contabilizar normalmente
-- Nova coluna "Parceiro" (SIM/NÃO) nos datatables de "Atendimento mais" e "Tabela de valor"
-  - Coluna oculta por padrão, habilitável via botão "Altere as colunas"
-  - Exibida para todos os atendimentos (parceiros e não parceiros)
-- Exportação do fechamento (XLS, CSV, PDF) incluindo coluna "Parceiro" quando habilitada
-- Verificar que a coluna "Parceiro" NÃO aparece em outros tipos de cobrança
-- Verificar que tipos de cobrança não elegíveis não exibem os checkboxes de configuração
-- Retrocompatibilidade: configuração desabilitada = comportamento atual inalterado
-
-## Fora do Escopo
-
-- Fechamento com prestador (este é fechamento por **cliente**)
-- Negociação de tarifas (fluxo bilateral Assistência ↔ Prestador)
-- Cálculo de crédito em si (apenas a aplicação das regras existentes aos atendimentos de parceiros)
-- Cadastro/gestão de prestadores parceiros
-- Fechamentos já processados (a configuração afeta apenas fechamentos futuros)
-
-## Dependências e Premissas
-
-- Prestadores parceiros configurados para o cliente de teste (Negócio > Clientes > aba "Parceiros")
-- Contrato do cliente com tipos de cobrança "Atendimento mais R$/%" e/ou "Tabela de valores" configurados
-- Atendimentos vinculados a prestadores parceiros disponíveis no ambiente de testes
-- Knowledge existente: `knowledge/business-rules/fechamento.md`, `knowledge/system/features/fechamento/fechamento-financeiro.md`
-
-## Pontos de Atenção (Esclarecidos)
-
-1. **Toggle de checkboxes:** Ao desmarcar "Exibir atendimentos de prestadores parceiros", o checkbox "Contabilizar valor de atendimento" é automaticamente desmarcado e ocultado
-2. **Prestador parceiro é por cliente:** A relação de parceria é por cliente, não é uma flag global do prestador. Verificar em Negócio > Clientes > aba "Parceiros"
-3. **Coluna "Parceiro":** Exibida para todos os atendimentos (SIM/NÃO) nos datatables de "Atendimento mais" e "Tabela de valor", oculta por padrão, habilitável via "Altere as colunas"
-4. **Tipos de cobrança independentes:** Cada tipo de cobrança tem configuração independente; podem coexistir no mesmo fechamento
-5. **Formatos de exportação:** XLS, CSV e PDF devem incluir a coluna "Parceiro" quando habilitada
-6. **Retroatividade:** Configuração afeta apenas fechamentos futuros
-
-## Novas Configurações (UI)
-
-### Localização
-Contrato do cliente > tipo de cobrança elegível ("Atendimento mais R$/%" ou "Tabela de valores")
-
-### Checkbox 1: "Exibir atendimentos de prestadores parceiros"
-- **Tooltip:** "Ao habilitar esta configuração, o sistema passará a exibir no fechamento os atendimentos realizados por prestadores parceiros. Esses atendimentos serão apresentados com valor zerado, não impactando os cálculos financeiros."
-- **Comportamento quando habilitado:**
-  - Atendimentos de prestadores parceiros passam a ser exibidos no fechamento
-  - São apresentados com valor zerado
-  - Não impactam o valor total do lote
-
-### Checkbox 2: "Contabilizar valor de atendimento"
-- **Visibilidade:** Só é exibido quando o checkbox 1 está habilitado
-- **Tooltip:** "Ao habilitar esta configuração, os atendimentos de prestadores parceiros terão seus valores calculados e considerados no fechamento, impactando o valor total."
-- **Comportamento quando habilitado:**
-  - Atendimentos de parceiros deixam de ter valor zerado
-  - Passam a ser contabilizados normalmente
-  - Seguem integralmente as regras do tipo de cobrança configurado
-
-### Nova Coluna "Parceiro" nos Datatables
-- Presente nos datatables de "Atendimento mais" e "Tabela de valor" (Fechamento > Por Clientes > Detalhes)
-- Valores: SIM / NÃO
-- Oculta por padrão, habilitável via botão "Altere as colunas"
-- Quando habilitada, incluída nas exportações (XLS, CSV, PDF)
-- NÃO deve aparecer em outros tipos de cobrança
-
-## Regras Gerais (Matriz de Configuração)
-
-| Exibir | Contabilizar | Comportamento |
-|---|---|---|
-| ❌ | — (oculto) | Comportamento atual mantido — atendimentos de parceiros não aparecem |
-| ✅ | ❌ | Atendimentos aparecem com valor zerado, sem impacto no total |
-| ✅ | ✅ | Atendimentos aparecem com valor calculado, somados ao total, regras do tipo de cobrança aplicadas |
 
 ## Comportamentos Confirmados
 
@@ -115,19 +108,47 @@ Contrato do cliente > tipo de cobrança elegível ("Atendimento mais R$/%" ou "T
 
 ---
 
-## QA Notes
+## Escopo de Teste
+
+- Configuração dos checkboxes no contrato do cliente (Negócio > Clientes > selecionar cliente > contrato > tipo de cobrança)
+- Dependência hierárquica entre os dois checkboxes (Exibir → Contabilizar)
+- Comportamento do fechamento por cliente (Fechamento > Por Clientes > Detalhes) nas 3 combinações:
+  - Não exibir (comportamento atual mantido)
+  - Exibir com valor zerado
+  - Exibir e contabilizar normalmente
+- Nova coluna "Parceiro" (SIM/NÃO) nos datatables de "Atendimento mais" e "Tabela de valor"
+  - Coluna oculta por padrão, habilitável via botão "Altere as colunas"
+  - Exibida para todos os atendimentos (parceiros e não parceiros)
+- Exportação do fechamento (XLS, CSV, PDF) incluindo coluna "Parceiro" quando habilitada
+- Verificar que a coluna "Parceiro" NÃO aparece em outros tipos de cobrança
+- Verificar que tipos de cobrança não elegíveis não exibem os checkboxes de configuração
+- Retrocompatibilidade: configuração desabilitada = comportamento atual inalterado
+
+## Fora do Escopo
+
+- Fechamento com prestador (este é fechamento por **cliente**)
+- Negociação de tarifas (fluxo bilateral Assistência ↔ Prestador)
+- Cálculo de crédito em si (apenas a aplicação das regras existentes aos atendimentos de parceiros)
+- Cadastro/gestão de prestadores parceiros
+- Fechamentos já processados (a configuração afeta apenas fechamentos futuros)
+
+---
+
+## Notas de QA
 
 - **Retrocompatibilidade confirmada:** Nenhuma configuração habilitada = comportamento anterior inalterado (CT002.6).
 - **Parceria por cliente:** A relação de parceria é configurada em Negócio > Clientes > aba "Parceiros" — não é flag global do prestador.
 - **Independência por tipo de cobrança confirmada:** Dois tipos elegíveis no mesmo contrato podem ter configurações diferentes (CT001.9).
 - **Coluna "Parceiro" exibe ambos (SIM e NÃO):** Quando habilitada, aparece para todos os atendimentos — não apenas os de parceiros.
 
----
+## Dependências
 
-## Related Features
+- Prestadores parceiros configurados para o cliente de teste (Negócio > Clientes > aba "Parceiros")
+- Contrato do cliente com tipos de cobrança "Atendimento mais R$/%" e/ou "Tabela de valores" configurados
+- Atendimentos vinculados a prestadores parceiros disponíveis no ambiente de testes
+
+## Features Relacionadas
+
 - [[fechamento-financeiro]]
 - [[agrupamento-lote]]
 - [[calculo-credito]]
-
-## Documento Fonte
-- Arquivo: "Serviços de prestadores parceiros em Fechamento por clientes.pdf" (V1, 2025)

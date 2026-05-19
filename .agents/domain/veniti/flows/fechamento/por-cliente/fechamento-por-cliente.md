@@ -1,15 +1,28 @@
+---
+type: flow
+module: fechamento
+layer: flow
+related:
+  - fechamento-por-cliente
+  - calculo-credito
+  - fluxo-calculo-credito
+  - atendimento-lifecycle
+---
+
 # Flow — Fechamento Financeiro por Cliente
 
-## Description
+> Descreve o processo de encerramento financeiro do período entre o Veniti e o Cliente (seguradora), com consolidação de créditos, negociação de descontos e emissão de fatura.
+
+## Descrição
 
 Descreve o processo de encerramento financeiro do período entre o Veniti (Assistência) e o Cliente (seguradora). A Assistência consolida os créditos do período, negocia descontos e emite a nota/fatura ao cliente.
 
-**Portal:** `/assistencia/fechamento/cliente/`  
+**Portal:** `/assistencia/fechamento/cliente/`
 **Ator principal:** Operação financeira (Assistência)
 
 ---
 
-## FLUXO A: Fechamento com o Cliente
+## Fluxo
 
 ### A1. Consolidação de Créditos do Período
 
@@ -38,19 +51,19 @@ Descreve o processo de encerramento financeiro do período entre o Veniti (Assis
 
 ---
 
-## Entry Points
+## Pontos de Entrada
 
 | Portal | Ator | Trigger |
 |---|---|---|
 | `/assistencia/fechamento/cliente/` | Operação financeira | Início do período de fechamento com cliente |
 
-## Exit Points
+## Pontos de Saída
 
 | Saída | Condição |
 |---|---|
 | Fechamento com cliente `FECHADO` | Fatura emitida ao cliente |
 
-## Variations
+## Variações
 
 ### Contestação após Fechamento
 
@@ -59,18 +72,13 @@ Descreve o processo de encerramento financeiro do período entre o Veniti (Assis
 
 ---
 
-## QA Notes
+## Notas de QA
 
 - **Risco:** Verificar se o desconto negociado é validado para não ultrapassar o valor total
 - **Edge case:** Período sem atendimentos — fechamento gera nota com valor zero ou é bloqueado?
 - **Risco fiscal:** `numero_nota` gerado sem integração com NF-e — conformidade fiscal não coberta pelo sistema
 
-## Related Features
+## Features Relacionadas
 
 - [[fechamento-por-cliente]]
 - [[calculo-credito]]
-
-## Related Flows
-
-- [[fluxo-calculo-credito]]
-- [[atendimento-lifecycle]]

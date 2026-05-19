@@ -1,27 +1,31 @@
+---
+type: feature
+module: reembolso
+layer: feature
+related:
+  - ocorrencias-reembolso
+  - solicitacao-reembolso
+---
+
 # Tags no Reembolso
 
-## Resumo
+> O módulo de Tags foi atualizado para suportar o fluxo de reembolso, com herança automática de tags do atendimento.
+
+## Descrição
 
 O módulo de Tags foi atualizado para suportar o fluxo de reembolso. Tags podem ser configuradas para exibição no reembolso e, quando vinculadas ao atendimento, podem ser herdadas automaticamente no momento da criação do reembolso.
 
-> **Nota de implementação:** O PDF original (item 3.5) descreve a adição de um **checkbox "Exibir no reembolso"** no cadastro de tags. A implementação real utilizou uma abordagem diferente: a opção **'Reembolso'** foi adicionada ao select de **Tipo de Evento** do cadastro/edição de tags. Ver seção "Implementação Real" abaixo.
+> **Nota de implementação:** O PDF original (item 3.5) descreve a adição de um **checkbox "Exibir no reembolso"** no cadastro de tags. A implementação real utilizou uma abordagem diferente: a opção **'Reembolso'** foi adicionada ao select de **Tipo de Evento** do cadastro/edição de tags.
 
 ---
 
-## Alteração no Cadastro/Edição de Tags
+## Entradas
 
-### Especificação do PDF (Documentação Original)
+### Alteração no Cadastro/Edição de Tags
 
-Seria criado um novo checkbox no cadastro/edição de tags:
-- **"Exibir no reembolso"**
-
-Somente tags com esse checkbox marcado poderiam ser exibidas e vinculadas no reembolso.
-
-### Implementação Real (Conforme Verificado)
+**Caminho:** `Configurações → Operação → Tags`
 
 Em vez de um checkbox, foi adicionada a opção **'Reembolso'** no select de **Tipo de Evento** do cadastro/edição de tags.
-
-Caminho: `Configurações → Operação → Tags`
 
 **Tipos de Evento disponíveis (após a alteração):**
 
@@ -31,9 +35,17 @@ Caminho: `Configurações → Operação → Tags`
 | `Reembolso` | Sim | **Não** |
 | Demais opções | Não | Sim |
 
+## Saídas
+
+- Tags com Tipo de Evento `Reembolso` ou `TODOS` disponíveis no seletor de tags do reembolso
+- Tags com Tipo de Evento `TODOS` vinculadas ao atendimento pré-selecionadas ao criar reembolso (herança)
+- Inserção e remoção de tags registradas nas ocorrências do reembolso
+
 ---
 
-## Regras de Exibição no Reembolso
+## Regras de Negócio
+
+### Regras de Exibição no Reembolso
 
 | Tipo de Evento da Tag | Vinculada ao Atendimento? | Disponível no Reembolso? | Pré-selecionada (Herança)? |
 |---|---|---|---|
@@ -43,9 +55,7 @@ Caminho: `Configurações → Operação → Tags`
 | `TODOS` | Não | Sim | Não |
 | Outros | — | **Não** | Não |
 
----
-
-## Herança de Tags do Atendimento
+### Herança de Tags do Atendimento
 
 A herança ocorre **apenas** quando:
 - O Tipo de Evento da tag é `TODOS` **E**
@@ -55,16 +65,12 @@ Nesse caso, ao criar um reembolso para esse atendimento, a tag vem **automaticam
 
 Tags com Tipo de Evento = `Reembolso` vinculadas ao atendimento **não** herdam automaticamente.
 
----
-
-## Comportamento Visual e Funcional
+### Comportamento Visual e Funcional
 
 - O campo de tags no reembolso fica posicionado no card **"INFORMAÇÕES DO REEMBOLSO"**
 - É possível **adicionar/remover** tags manualmente no reembolso após a criação
 - Inserção e remoção de tags no reembolso **devem ser registradas nas ocorrências** do reembolso
 - Tags com Tipo de Evento = `Reembolso` **não aparecem** na listagem de tags de atendimentos
-
----
 
 ## Critérios de Aceitação
 
@@ -87,8 +93,7 @@ Tags com Tipo de Evento = `Reembolso` vinculadas ao atendimento **não** herdam 
 - [[ocorrencias-reembolso]] — registro de inserção/remoção de tags
 - [[solicitacao-reembolso]] — campo de tags no card INFORMAÇÕES DO REEMBOLSO
 
-## Pontos de Atenção
+## Features Relacionadas
 
-- Tags com Tipo de Evento = `TODOS` não vinculadas ao atendimento aparecem disponíveis no seletor do reembolso, mas sem pré-seleção (confirmado)
-- Tags com Tipo de Evento = `Reembolso` vinculadas ao atendimento NÃO herdam automaticamente (confirmado)
-- É possível adicionar/remover tags no reembolso após criação (confirmado)
+- [[ocorrencias-reembolso]]
+- [[solicitacao-reembolso]]

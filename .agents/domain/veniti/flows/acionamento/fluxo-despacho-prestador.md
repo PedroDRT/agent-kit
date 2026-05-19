@@ -1,10 +1,25 @@
+---
+type: flow
+module: acionamento
+layer: flow
+related:
+  - ciclo-vida-acionamento
+  - dispatch-automatico
+  - gestao-status-atendimento
+  - calculo-credito
+---
+
 # Fluxo de Despacho ao Prestador
 
-## Description
+> Descreve o processo de seleção, notificação e acompanhamento do prestador durante a execução de um atendimento, desde a busca do prestador até a conclusão do serviço em campo.
+
+## Descrição
 
 Descreve o processo detalhado de seleção, notificação e acompanhamento do prestador durante a execução de um atendimento. Foca na perspectiva operacional do acionamento, desde a busca do prestador até a conclusão do serviço em campo.
 
-## Steps
+---
+
+## Fluxo
 
 ### 1. Verificação de Elegibilidade
 - **Sistema**: Confirma que `bloquear_acionamento = false` no atendimento
@@ -72,20 +87,22 @@ Descreve o processo detalhado de seleção, notificação e acompanhamento do pr
 - **Sistema**: Acionamento → `FINALIZADO`, `TFinalizado` gravado
 - **Trigger**: [[calculo-credito]] disparado automaticamente
 
-## Entry Points
+---
+
+## Pontos de Entrada
 
 - Operador acessa `/assistencia/operacao/acionamento.php` e seleciona prestador manualmente
 - Cronjob `auto_dispatch.php` seleciona atendimentos elegíveis da fila e aciona automaticamente
 - Broadcast mode: múltiplos prestadores notificados simultaneamente
 
-## Exit Points
+## Pontos de Saída
 
 - **Sucesso**: Acionamento `FINALIZADO` → crédito gerado
 - **Cancelamento**: Acionamento `CANCELADO` pela operação
 - **Esgotamento**: Sem prestadores disponíveis → atendimento permanece em `ABERTO` para intervenção manual
 - **Reembolso**: Operação decide reembolsar ao invés de acionar → [[fluxo-reembolso-completo]]
 
-## Variations
+## Variações
 
 ### Broadcast (Simultâneo)
 - Múltiplos prestadores notificados de uma vez
@@ -100,7 +117,7 @@ Descreve o processo detalhado de seleção, notificação e acompanhamento do pr
 - Acionamento agendado para data/hora futura
 - `data_agendamento` e `data_agendamento_inicio` controlam a janela de execução
 
-## Related Features
+## Features Relacionadas
 
 - [[ciclo-vida-acionamento]]
 - [[dispatch-automatico]]

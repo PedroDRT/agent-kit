@@ -1,17 +1,39 @@
+---
+type: flow
+module: reembolso
+layer: flow
+related:
+  - solicitacao-reembolso
+  - processamento-pagamento-reembolso
+  - perguntas-reembolso
+  - tags-reembolso
+  - ocorrencias-reembolso
+  - badge-arquivos-reembolso
+  - status-personalizados-reembolso
+  - link-reembolso
+  - portal-self-service-beneficiario
+  - criacao-atendimento
+  - api-reembolsos
+---
+
 # Fluxo de Reembolso Completo
 
-## Description
+> Descreve o ciclo completo de um reembolso — desde a criação pela operação, passando pela interação do beneficiário via portal self-service, até o pagamento final.
+
+## Descrição
 
 Descreve o ciclo completo de um reembolso — desde a criação pela operação, passando pela interação do beneficiário via portal self-service, até o pagamento final. Envolve o portal Assistência (gestão interna) e o portal público do Beneficiário.
 
-## Módulos de Configuração (Pré-requisitos)
+### Módulos de Configuração (Pré-requisitos)
 
 | Módulo | Caminho | Descrição |
 |---|---|---|
 | Perguntas de reembolso | Configurações → Financeiro → Perguntas de reembolso | Configura perguntas exibidas no fluxo |
 | Status personalizados | Configurações → Financeiro → Status reembolso | Configura status complementares |
 
-## Steps
+---
+
+## Fluxo
 
 ### 1. Decisão de Reembolso
 - **Ator**: Operador (portal Assistência)
@@ -87,7 +109,7 @@ Descreve o ciclo completo de um reembolso — desde a criação pela operação,
 - **View no portal**: `refund_sent.php`
 - **Encerramento**: Ciclo do reembolso concluído
 
-## Telas do Reembolso (Abas)
+### Telas do Reembolso (Abas)
 
 | Aba | Descrição |
 |---|---|
@@ -97,18 +119,20 @@ Descreve o ciclo completo de um reembolso — desde a criação pela operação,
 | Arquivos | Lista de arquivos (arquivos do beneficiário identificados com badge "BENEFICIÁRIO") |
 | Ocorrências | Histórico de ocorrências manuais e automáticas |
 
-## Entry Points
+---
+
+## Pontos de Entrada
 
 - Portal Assistência: `/assistencia/operacao/` → criação manual pela operação
 - Portal Assistência: `/assistencia/reembolso/` → gestão de reembolsos existentes
 
-## Exit Points
+## Pontos de Saída
 
 - **Sucesso**: Status `PAGO` — pagamento confirmado
 - **Recusa**: Status `RECUSADO` — ciclo encerrado sem pagamento
 - **Link expirado**: Beneficiário não acessa o link no prazo → operação deve reenviar
 
-## Variations
+## Variações
 
 ### Reembolso sem Upload de Nota
 - Em casos onde a documentação é dispensada pelo contrato
@@ -126,7 +150,7 @@ Descreve o ciclo completo de um reembolso — desde a criação pela operação,
 - Operador informa `limite_reembolso` no cadastro
 - No modal de aprovação, o sistema calcula e exibe automaticamente o `valor_excedente`
 
-## Related Features
+## Features Relacionadas
 
 - [[solicitacao-reembolso]]
 - [[processamento-pagamento-reembolso]]

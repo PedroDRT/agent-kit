@@ -1,10 +1,25 @@
+---
+type: feature
+module: beneficiario
+layer: feature
+related:
+  - fluxo-busca-prestador
+  - portal-self-service-beneficiario
+  - criacao-atendimento
+  - login-multi-portal
+---
+
 # Cadastro de Beneficiário
 
-## Description
+> Permite registrar, editar e gerenciar beneficiários vinculados a um plano de um cliente (seguradora).
+
+## Descrição
 
 Permite registrar, editar e gerenciar beneficiários vinculados a um plano de um cliente (seguradora). Um beneficiário é o titular do serviço de assistência — a pessoa ou veículo que será atendido em uma solicitação. O cadastro pode incluir veículos, pets e dados de contato.
 
-## Inputs
+---
+
+## Entradas
 
 ### Dados Pessoais
 
@@ -47,14 +62,16 @@ Permite registrar, editar e gerenciar beneficiários vinculados a um plano de um
 |---|---|
 | Arquivo CSV/Excel | Template padrão para importação em massa |
 
-## Outputs
+## Saídas
 
 - Registro criado/atualizado na tabela `clientes_beneficiarios`
 - Veículos e pets vinculados em suas respectivas tabelas
 - Beneficiário disponível para seleção em novos atendimentos
 - Arquivos associados armazenados no AWS S3
 
-## Business Rules
+---
+
+## Regras de Negócio
 
 - Um beneficiário é sempre vinculado a um `id_plano` de um cliente (`id_veniti`)
 - CPF/CNPJ é identificador único por tenant — não pode ser duplicado no mesmo plano
@@ -65,7 +82,7 @@ Permite registrar, editar e gerenciar beneficiários vinculados a um plano de um
 - Beneficiários com atendimentos em aberto não podem ser excluídos
 - Dados de beneficiários podem ser pré-preenchidos via integrações externas (SGA, CDF)
 
-## Edge Cases
+## Casos de Borda
 
 - Upload em lote com CPFs inválidos ou duplicados no arquivo
 - Beneficiário com mesmo CPF em dois planos diferentes do mesmo cliente
@@ -74,7 +91,9 @@ Permite registrar, editar e gerenciar beneficiários vinculados a um plano de um
 - Pet com porte incompatível com o peso informado
 - Beneficiário não encontrado nas bases externas de busca
 
-## Dependencies
+---
+
+## Dependências
 
 - **Portais**: `html/assistencia/beneficiarios/` (gestão interna), `html/cliente/beneficiarios/` (visão cliente)
 - **Busca externa**: `src/Models/BuscadorClienteBeneficiario.php` (MaxPar, CDF, Tato, TempoAssist)
@@ -83,11 +102,11 @@ Permite registrar, editar e gerenciar beneficiários vinculados a um plano de um
 - **Banco**: `clientes_beneficiarios`, `clientes_beneficiarios_veiculos`, `clientes_beneficiarios_pets`
 - **Integrações**: SGA (`src/Integracoes/SGA/`), CDF billing
 
-## Related Flows
+## Flows Relacionados
 
 - [[fluxo-busca-prestador]]
 
-## Related Features
+## Features Relacionadas
 
 - [[portal-self-service-beneficiario]]
 - [[criacao-atendimento]]

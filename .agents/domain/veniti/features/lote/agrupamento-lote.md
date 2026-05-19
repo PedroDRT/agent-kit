@@ -1,12 +1,29 @@
+---
+type: feature
+module: lote
+layer: feature
+related:
+  - faturamento-lote
+  - fechamento-financeiro
+  - fechamento-por-cliente
+  - calculo-credito
+  - execucao-servico
+  - ciclo-vida-acionamento
+---
+
 # Agrupamento em Lote (Faturamento)
 
-## Description
+> O Lote é o agrupamento de acionamentos finalizados em uma unidade faturável, representando a fatura emitida ao prestador de serviço.
+
+## Descrição
 
 O **Lote** (também referenciado como `fechamento_prestador` no banco) é o agrupamento de acionamentos finalizados em uma unidade faturável. Representa a fatura que o Veniti emite ao prestador de serviço, detalhando todos os serviços executados em um período e o valor total a ser pago. O lote é o ponto de entrada para o módulo de Contas a Pagar.
 
 **Analogia contábil:** O Lote para o prestador é equivalente a uma Nota de Serviço recebida — é o instrumento que autoriza o pagamento.
 
-## Inputs
+---
+
+## Entradas
 
 | Campo | Tipo | Descrição |
 |---|---|---|
@@ -30,7 +47,7 @@ O **Lote** (também referenciado como `fechamento_prestador` no banco) é o agru
 | `km_total` | decimal | KM percorrido (base para cálculo tarifário) |
 | `tarifa_aplicada` | decimal | Tarifa acordada no fechamento |
 
-## Outputs
+## Saídas
 
 - Lote criado em `fechamento_prestador` com itens em `fechamento_prestador_itens`
 - Lançamento gerado em `contas_pagar` com valor total do lote
@@ -38,7 +55,23 @@ O **Lote** (também referenciado como `fechamento_prestador` no banco) é o agru
 - Lote visível à operação em `/assistencia/faturamento/prestador/`
 - Histórico de alterações registrado no log do sistema ("alterou as informações do lote")
 
-## Status Lifecycle
+---
+
+## Regras de Negócio
+
+- Somente acionamentos com status `FINALIZADO` são elegíveis para inclusão em lote
+- Um acionamento só pode aparecer em **um único lote** — não pode ser faturado duas vezes
+- O lote agrupa acionamentos do **mesmo prestador** no mesmo período de referência
+- O campo `numero` do lote é o identificador contábil usado na Contas a Pagar
+- A forma de pagamento e conta bancária são definidas no lote — devem corresponder ao cadastro do prestador
+- O status `REALIZADO` registra `time_recebimento` — confirmação manual de que o pagamento foi efetuado; sem integração bancária automática
+- O lançamento em `contas_pagar` gerado pelo lote tem status próprio (`PAGO`) — distinto do status `REALIZADO` do lote
+- Lotes `CANCELADO` liberam os acionamentos para serem incluídos em novo lote
+- O lote `APROVADO` sem data de pagamento pode ficar "travado" sem avançar para `AGENDADO`
+- A coluna `Data Pagamento` no portal do prestador corresponde ao `time_pagamento` agendado
+- Filtros disponíveis no portal do prestador: Data emissão, Assistência, Situação, Número, Protocolo
+
+## Estados
 
 ```
 ABERTO
@@ -60,21 +93,7 @@ ABERTO
 | RECUSADO | RECUSADO | Lote recusado |
 | CANCELADO | CANCELADO | Lote cancelado |
 
-## Business Rules
-
-- Somente acionamentos com status `FINALIZADO` são elegíveis para inclusão em lote
-- Um acionamento só pode aparecer em **um único lote** — não pode ser faturado duas vezes
-- O lote agrupa acionamentos do **mesmo prestador** no mesmo período de referência
-- O campo `numero` do lote é o identificador contábil usado na Contas a Pagar
-- A forma de pagamento e conta bancária são definidas no lote — devem corresponder ao cadastro do prestador
-- O status `REALIZADO` registra `time_recebimento` — confirmação manual de que o pagamento foi efetuado; sem integração bancária automática
-- O lançamento em `contas_pagar` gerado pelo lote tem status próprio (`PAGO`) — distinto do status `REALIZADO` do lote
-- Lotes `CANCELADO` liberam os acionamentos para serem incluídos em novo lote
-- O lote `APROVADO` sem data de pagamento pode ficar "travado" sem avançar para `AGENDADO`
-- A coluna `Data Pagamento` no portal do prestador corresponde ao `time_pagamento` agendado
-- Filtros disponíveis no portal do prestador: Data emissão, Assistência, Situação, Número, Protocolo
-
-## Edge Cases
+## Casos de Borda
 
 - Acionamento finalizado após o fechamento do período — próximo lote ou retroativo?
 - Dois lotes criados para o mesmo prestador no mesmo mês (duplicata)
@@ -84,7 +103,9 @@ ABERTO
 - Acionamento contestado pelo prestador após inclusão em lote `APROVADO`
 - Lote com zero itens criado por erro
 
-## QA Notes
+---
+
+## Notas de QA
 
 - **Risco crítico:** Não há evidência de validação que impeça o mesmo acionamento de aparecer em dois lotes — verificar constraint na tabela `fechamento_prestador_itens`
 - **Risco:** `REALIZADO` registrado manualmente — sem integração bancária, a confirmação de pagamento depende de ação humana
@@ -93,7 +114,7 @@ ABERTO
 - **Edge case:** O que acontece com o lançamento em `contas_pagar` quando um lote é cancelado após ter sido registrado?
 - **Auditoria:** O log registra "alterou as informações do lote" — mas a granularidade do log (qual campo mudou, de qual valor para qual) não está confirmada
 
-## Dependencies
+## Dependências
 
 - **Portais**: `html/assistencia/faturamento/prestador/` (gestão de lotes), `html/prestador/faturamento/` (visão do prestador)
 - **Contas a Pagar**: `html/assistencia/contas_pagar/` (lançamentos gerados)
@@ -101,12 +122,12 @@ ABERTO
 - **Fechamento**: `html/assistencia/fechamento/` (contexto financeiro)
 - **Banco**: `fechamento_prestador`, `fechamento_prestador_itens`, `contas_pagar`
 
-## Related Flows
+## Flows Relacionados
 
 - [[faturamento-lote]]
 - [[fechamento-financeiro]]
 
-## Related Features
+## Features Relacionadas
 
 - [[fechamento-financeiro]]
 - [[calculo-credito]]

@@ -1,12 +1,31 @@
+---
+type: flow
+module: faturamento
+layer: flow
+related:
+  - agrupamento-lote
+  - fechamento-financeiro
+  - calculo-credito
+  - execucao-servico
+  - fechamento-financeiro
+  - fluxo-calculo-credito
+  - execucao-atendimento
+  - atendimento-lifecycle
+---
+
 # Faturamento em Lote
 
-## Description
+> Descreve o processo de criação, gestão e pagamento de lotes de faturamento ao prestador — última etapa operacional antes da quitação financeira.
+
+## Descrição
 
 Descreve o processo de criação, gestão e pagamento de lotes de faturamento ao prestador. O lote é o instrumento financeiro que converte acionamentos finalizados em um pagamento estruturado. É a última etapa operacional antes da quitação financeira com o prestador.
 
 **Posição no ciclo:** Acionamento `FINALIZADO` → Crédito calculado → **Lote criado** → Contas a Pagar → Pagamento
 
-## Steps
+---
+
+## Fluxo
 
 ### 1. Identificação de Acionamentos Elegíveis
 - **Ator:** Sistema / Operação financeira
@@ -68,14 +87,14 @@ Descreve o processo de criação, gestão e pagamento de lotes de faturamento ao
 
 ---
 
-## Entry Points
+## Pontos de Entrada
 
 | Ponto | Ator | Portal |
 |---|---|---|
 | Criação manual de lote | Operação financeira | `/assistencia/faturamento/prestador/` |
 | Revisão de lote recebido | Prestador | `/prestador/faturamento/` + `/prestador/fechamento/` |
 
-## Exit Points
+## Pontos de Saída
 
 | Saída | Status | Consequência |
 |---|---|---|
@@ -83,7 +102,9 @@ Descreve o processo de criação, gestão e pagamento de lotes de faturamento ao
 | Lote recusado (negociação) | `RECUSADO` | Acionamentos retornam ao pool |
 | Lote cancelado | `CANCELADO` | Lançamento em contas_pagar revertido |
 
-## State Machine
+## Variações
+
+### State Machine
 
 ```
 ABERTO
@@ -97,28 +118,9 @@ ABERTO
   └──→ CANCELADO
 ```
 
-## Business Rules
+---
 
-- Um acionamento `FINALIZADO` entra em **exatamente um lote** — constraint de unicidade
-- Lotes agrupam acionamentos do **mesmo prestador** no mesmo período de referência
-- O lote `APROVADO` tem valores imutáveis — alteração requer cancelamento e criação de novo lote
-- `time_recebimento` só é preenchido quando o prestador efetivamente recebe — status `REALIZADO`
-- Lotes `CANCELADO` devolvem os acionamentos ao pool para inclusão em novo lote
-- O modal `modal_lote_contas_pagar.php` no portal de Assistência gerencia pagáveis vinculados ao lote
-- Prestadores filtram seus lotes por: Data emissão, Assistência, Situação, Número, Protocolo
-- A Assistência filtra lotes por: Data emissão/pagamento, Prestadores, CPF/CNPJ, Situação, Número, Anexo, Protocolo, Clientes
-
-## Edge Cases
-
-- Prestador com alto volume: dezenas de lotes simultâneos em negociação
-- Lote `AGENDADO` com data de pagamento no passado (pagamento atrasado não executado)
-- Mudança de forma de pagamento de PIX para TED após lote `APROVADO`
-- Acionamento contestado pelo prestador após inclusão em lote `REALIZADO`
-- Lote gerado para prestador descredenciado após a criação
-- Conta bancária do prestador encerrada entre `AGENDADO` e `REALIZADO`
-- `time_recebimento` preenchido incorretamente (data no futuro)
-
-## QA Notes
+## Notas de QA
 
 - **Risco crítico:** Sem integração bancária real — `REALIZADO` e `time_recebimento` dependem de ação manual. Alto risco de divergência entre sistema e extrato real
 - **Risco:** Acionamento incluído em lote `CANCELADO` — a liberação de volta ao pool é automática ou manual? Sem clareza no código
@@ -128,16 +130,19 @@ ABERTO
 - **Edge case de compliance:** `numero` e `serie` do lote têm formato definido para fins fiscais? Sistema não integra com NF-e
 - **Risco de rastreabilidade:** O log registra "alterou as informações do lote" de forma genérica — não está claro qual campo foi alterado
 
-## Related Features
+## Dependências
+
+- Um acionamento `FINALIZADO` entra em **exatamente um lote** — constraint de unicidade
+- Lotes agrupam acionamentos do **mesmo prestador** no mesmo período de referência
+- O lote `APROVADO` tem valores imutáveis — alteração requer cancelamento e criação de novo lote
+- `time_recebimento` só é preenchido quando o prestador efetivamente recebe — status `REALIZADO`
+- Lotes `CANCELADO` devolvem os acionamentos ao pool para inclusão em novo lote
+- Prestadores filtram seus lotes por: Data emissão, Assistência, Situação, Número, Protocolo
+- A Assistência filtra lotes por: Data emissão/pagamento, Prestadores, CPF/CNPJ, Situação, Número, Anexo, Protocolo, Clientes
+
+## Features Relacionadas
 
 - [[agrupamento-lote]]
 - [[fechamento-financeiro]]
 - [[calculo-credito]]
 - [[execucao-servico]]
-
-## Related Flows
-
-- [[fechamento-financeiro]]
-- [[fluxo-calculo-credito]]
-- [[execucao-atendimento]]
-- [[atendimento-lifecycle]]

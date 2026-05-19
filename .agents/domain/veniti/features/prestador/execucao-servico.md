@@ -1,10 +1,28 @@
+---
+type: feature
+module: prestador
+layer: feature
+related:
+  - execucao-atendimento
+  - fluxo-despacho-prestador
+  - fluxo-atendimento-completo
+  - ciclo-vida-acionamento
+  - dispatch-automatico
+  - calculo-credito
+  - agrupamento-lote
+---
+
 # Execução de Serviço pelo Prestador
 
-## Description
+> Representa o conjunto de ações realizadas pelo prestador após aceitar um acionamento, desde o deslocamento até a finalização do serviço em campo.
+
+## Descrição
 
 Representa o conjunto de ações realizadas pelo prestador de serviço após aceitar um acionamento. Cobre todo o ciclo de execução em campo: deslocamento à origem, execução do serviço, deslocamento ao destino e finalização. O prestador interage exclusivamente pelo portal Prestador (`/prestador/`).
 
-## Inputs
+---
+
+## Entradas
 
 | Ação | Campo/Trigger | Descrição |
 |---|---|---|
@@ -15,7 +33,7 @@ Representa o conjunto de ações realizadas pelo prestador de serviço após ace
 | Cancelar acionamento | `motivo_cancelamento` | Cancela o acionamento aceito |
 | Informar KM percorrido | `km_total` | Ajuste de distância real (se divergir do estimado) |
 
-## Outputs
+## Saídas
 
 - Timestamps registrados por transição: `TAceite`, `TOrigem`, `TDestino`, `TFinalizado`
 - `dispatch_vehicle_license_plate` e `dispatch_technician_name` registrados no aceite
@@ -23,6 +41,20 @@ Representa o conjunto de ações realizadas pelo prestador de serviço após ace
 - Notificação enviada ao cliente quando prestador chega na origem e finaliza
 - Cálculo de crédito disparado ao `FINALIZADO` (`CalcularValorCredito`)
 - Histórico disponível em `/prestador/servicos/` e `/prestador/acompanhamento/`
+
+---
+
+## Regras de Negócio
+
+- O prestador só pode avançar os status na sequência definida (não pode pular de `ACEITO` para `FINALIZADO`)
+- Em broadcast: primeiro prestador a aceitar obtém o serviço; demais recebem `ACEITO POR OUTRO PRESTADOR`
+- O cancelamento pelo prestador após aceite deve ter `motivo_cancelamento` preenchido
+- `km_total` pode ser ajustado pelo prestador até a finalização — impacta o cálculo de crédito
+- `dispatch_vehicle_license_plate` e `dispatch_technician_name` são obrigatórios no aceite
+- Atendimentos em `EM ESPERA` não podem ser avançados sem liberação pela operação
+- O prestador acessa o painel de acompanhamento em `/prestador/acompanhamento/` com filtros por data, protocolo, tipo de serviço e status
+- O painel de serviços históricos fica em `/prestador/servicos/` (somente leitura)
+- O acionamento em `FINALIZADO` alimenta o módulo de `Faturamento` do prestador — o serviço passa a ser faturável
 
 ## Status Flow (Perspectiva do Prestador)
 
@@ -65,19 +97,7 @@ Representa o conjunto de ações realizadas pelo prestador de serviço após ace
 | SOCIAL CALL | headset | badge-warning |
 | REEMBOLSO | money-bill-transfer | badge-warning |
 
-## Business Rules
-
-- O prestador só pode avançar os status na sequência definida (não pode pular de `ACEITO` para `FINALIZADO`)
-- Em broadcast: primeiro prestador a aceitar obtém o serviço; demais recebem `ACEITO POR OUTRO PRESTADOR`
-- O cancelamento pelo prestador após aceite deve ter `motivo_cancelamento` preenchido
-- `km_total` pode ser ajustado pelo prestador até a finalização — impacta o cálculo de crédito
-- `dispatch_vehicle_license_plate` e `dispatch_technician_name` são obrigatórios no aceite
-- Atendimentos em `EM ESPERA` não podem ser avançados sem liberação pela operação
-- O prestador acessa o painel de acompanhamento em `/prestador/acompanhamento/` com filtros por data, protocolo, tipo de serviço e status
-- O painel de serviços históricos fica em `/prestador/servicos/` (somente leitura)
-- O acionamento em `FINALIZADO` alimenta o módulo de `Faturamento` do prestador — o serviço passa a ser faturável
-
-## Edge Cases
+## Casos de Borda
 
 - Prestador marca `ORIGEM` antes de chegar ao local real (fraude de execução)
 - GPS não disponível no dispositivo do prestador (rastreamento falho)
@@ -88,7 +108,9 @@ Representa o conjunto de ações realizadas pelo prestador de serviço após ace
 - Dois técnicos do mesmo prestador marcando progresso simultaneamente no mesmo acionamento
 - Atendimento finalizado no sistema mas serviço não concluído (reclamação posterior)
 
-## QA Notes
+---
+
+## Notas de QA
 
 - **Risco crítico:** Não há evidência de validação de geolocalização real vs. status reportado — prestador pode marcar `ORIGEM` sem estar no local
 - **Risco:** `km_total` ajustável pelo prestador até finalização — potencial para abuso sem limite de variação configurado
@@ -97,7 +119,7 @@ Representa o conjunto de ações realizadas pelo prestador de serviço após ace
 - **Edge case:** Cancelamento após `DESTINO` (prestador já chegou ao destino mas não finalizou) — gera custo ao cliente?
 - **Risco de consistência:** Timestamps (`TOrigem`, `TDestino`) são registrados no momento da ação — e se há atraso de rede?
 
-## Dependencies
+## Dependências
 
 - **Portal**: `html/prestador/acompanhamento/` (execução em tempo real), `html/prestador/servicos/` (histórico)
 - **Observers**: `src/Observers/ObserverLogGeolocalization.php`
@@ -106,13 +128,13 @@ Representa o conjunto de ações realizadas pelo prestador de serviço após ace
 - **Cronjob**: `html/__cronjob/auto_expires_dispatch.php`
 - **Modelo**: `src/Models/Acionamento.php`
 
-## Related Flows
+## Flows Relacionados
 
 - [[execucao-atendimento]]
 - [[fluxo-despacho-prestador]]
 - [[fluxo-atendimento-completo]]
 
-## Related Features
+## Features Relacionadas
 
 - [[ciclo-vida-acionamento]]
 - [[dispatch-automatico]]

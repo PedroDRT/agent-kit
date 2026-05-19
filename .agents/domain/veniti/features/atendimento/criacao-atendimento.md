@@ -1,10 +1,26 @@
+---
+type: feature
+module: atendimento
+layer: feature
+related:
+  - fluxo-atendimento-completo
+  - fluxo-despacho-prestador
+  - gestao-status-atendimento
+  - ciclo-vida-acionamento
+  - calculo-credito
+---
+
 # Criação de Atendimento
 
-## Description
+> Feature responsável por registrar uma nova solicitação de assistência (atendimento).
+
+## Descrição
 
 Feature responsável por registrar uma nova solicitação de assistência (atendimento). Representa a entrada principal do ciclo de vida de um serviço no sistema Veniti. Um atendimento pode ser criado manualmente pela operação ou de forma automatizada via extensão externa.
 
-## Inputs
+---
+
+## Entradas
 
 | Campo | Tipo | Obrigatoriedade |
 |---|---|---|
@@ -32,7 +48,7 @@ Feature responsável por registrar uma nova solicitação de assistência (atend
 | `pet_nome`, `pet_raca`, `pet_especie` | string | Condicional (serviços pet) |
 | `pet_peso`, `pet_porte`, `pet_sexo` | string/decimal | Condicional |
 
-## Outputs
+## Saídas
 
 - Registro de atendimento criado na tabela `atendimentos`
 - `id` e `protocolo` gerados automaticamente
@@ -40,7 +56,9 @@ Feature responsável por registrar uma nova solicitação de assistência (atend
 - Evento `AttendanceCreated` disparado (vincula tags automaticamente via `LinkIdentifierTagsToAttendanceListener`)
 - Atendimento disponível no painel de operação dos portais Assistência e Cliente
 
-## Business Rules
+---
+
+## Regras de Negócio
 
 - Todo atendimento é vinculado a um `id_veniti` (empresa/cliente tenant)
 - O `protocolo` é único e gerado pelo sistema — não pode ser definido manualmente
@@ -52,7 +70,7 @@ Feature responsável por registrar uma nova solicitação de assistência (atend
 - Um atendimento pode ser criado pelo portal Assistência (interno) ou pela extensão externa (`html/extensao/create_attendance.php`)
 - O campo `id_veniti` é sempre inferido da sessão autenticada, nunca da entrada do usuário
 
-## Edge Cases
+## Casos de Borda
 
 - Atendimento criado com endereço de origem inválido (geolocalização ausente ou fora do Brasil)
 - Plano vencido ou beneficiário sem cobertura ativa
@@ -61,19 +79,21 @@ Feature responsável por registrar uma nova solicitação de assistência (atend
 - Criação via extensão com token de API inválido ou expirado
 - Pet registrado com peso incompatível com porte declarado
 
-## Dependencies
+---
+
+## Dependências
 
 - **APIs/Serviços externos**: Google Maps / HERE Maps / TomTom (validação e geocodificação de endereços)
 - **Banco de dados**: tabelas `atendimentos`, `clientes_planos`, `clientes_beneficiarios`, `tipos_servicos`
 - **Integrações**: `html/extensao/create_attendance.php`, `src/Integracoes/AlteracoesAtendimento/`
 - **Módulos internos**: Autenticação de sessão, `src/Domain/Attendance/Events/AttendanceCreated`
 
-## Related Flows
+## Flows Relacionados
 
 - [[fluxo-atendimento-completo]]
 - [[fluxo-despacho-prestador]]
 
-## Related Features
+## Features Relacionadas
 
 - [[gestao-status-atendimento]]
 - [[ciclo-vida-acionamento]]
