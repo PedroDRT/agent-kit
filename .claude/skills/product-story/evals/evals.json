@@ -1,0 +1,23 @@
+{
+  "skill_name": "product-story",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Preciso criar a especificação de uma feature de recuperação de senha por e-mail. O usuário vai clicar em 'esqueci minha senha', informar o e-mail e receber um link de redefinição. O link deve expirar em 30 minutos. Nossa plataforma é B2B e os usuários são funcionários de empresas clientes.",
+      "expected_output": "Documento completo com: contexto de negócio explicando o problema de acesso, user story no formato padrão (Como [persona], Quero [ação], Para [benefício]), pelo menos 4 critérios de aceite numerados com CA-XXX cobrindo o fluxo principal e a expiração do link, bloqueios de aceite com BA-XXX cobrindo casos críticos como link não expirar ou redirecionar para outro usuário, e cenários Gherkin com Feature/Scenario cobrindo happy path, e-mail não cadastrado e link expirado.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Nosso e-commerce precisa de um carrinho de compras. O cliente adiciona produtos, vê o subtotal atualizado em tempo real, e pode aumentar/diminuir a quantidade ou remover itens. No checkout o estoque é verificado e se um produto não tiver mais estoque o usuário é avisado antes de finalizar.",
+      "expected_output": "Documento completo com contexto de negócio focado no valor para o e-commerce, user story centrada na experiência de compra, critérios de aceite cobr indo adição/remoção de itens, atualização de subtotal e validação de estoque no checkout, bloqueios críticos como compra sem estoque ou preço errado, e cenários BDD Gherkin para fluxo feliz e cenário de produto sem estoque.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Quero escrever os critérios de aceite para a feature de notificações push no nosso app mobile. O usuário pode ativar/desativar notificações por categoria (promoções, transações, avisos de segurança). Avisos de segurança são obrigatórios e não podem ser desativados.",
+      "expected_output": "Documento completo com contexto sobre engajamento e segurança, user story para gerenciamento de preferências de notificação, critérios de aceite cobrindo ativação/desativação por categoria e a restrição de avisos de segurança obrigatórios, bloqueio explícito sobre não poder desativar avisos de segurança, e cenários BDD para ativar/desativar preferências e tentativa de desativar aviso de segurança.",
+      "files": []
+    }
+  ]
+}
